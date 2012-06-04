@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: C++ | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/c-/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-06-04T10:41:51+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rcpp-1]]></title>
+    <link href="http://wush978.github.com/blog/2012/02/28/rcpp/"/>
+    <updated>2012-02-28T15:42:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/02/28/rcpp</id>
+    <content type="html"><![CDATA[<h1>Rcpp 心得 -- 簡介</h1>
+
+<ul>
+<li><a href="#overview">概述</a>
+
+<ul>
+<li><a href="#background">背景知識</a></li>
+<li><a href="#introduction">介紹</a></li>
+<li><a href="#install">安裝</a></li>
+<li><a href="#compile">編譯</a></li>
+<li><a href="#reference">參考資料</a></li>
+</ul>
+</li>
+</ul>
+
+
+<hr />
+
+<h2 id="overview"> 概述 </h2>
+
+
+
+
+<h3 id="background"> 背景知識 </h3>
+
+
+<p>就我所知，要能理解Rcpp的語法，你必須先對C++這個我個人認為最難學的語言先學到某種程度才行。根據<a href="http://www.amazon.com/Effective-Specific-Improve-Programs-Designs/dp/0321334876">Effective C++</a>的作者Scott Meyers的看法，C++其實是下列四種程式語言的集合(難怪很難，一個打四個!!):</p>
+
+<ul>
+<li>C的特性 (指標、陣列等等)</li>
+<li>物件導向</li>
+<li>STL 標準函式庫</li>
+<li>Template</li>
+</ul>
+
+
+<p>Rcpp中大量的使用了後面三種，所以如果看不習慣Rcpp的使用者，可能得先回頭把C++後面三種的語法複習一下了。</p>
+
+<h3 id="introduction"> 介紹 </h3>
+
+
+<p><a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp</a> 是一個整合R和C++的library。
+使用過R中的<code>.Call</code>函數的人一定會對於處理R和C之間資料結構的轉換感到很煩人，而Rcpp給我的第一個印象就是他把這些重複性很高的轉換給包起來了!所以在使用Rcpp時使用者不需要再去撰寫諸如以下的程式碼:</p>
+
+<p>``` c return a R integer vector with R API</p>
+
+<h1>include &lt;R.h></h1>
+
+<h1>include &lt;Rdefines.h></h1>
+
+<p>SEXP foo()
+{</p>
+
+<pre><code>SEXP retval;
+PROTECT(retval = NEW_INTEGER(2));
+INTEGER_POINTER(retval)[0] = 1;
+INTEGER_POINTER(retval)[1] = 2;
+UNPROTECT(1);
+return retval;
+</code></pre>
+
+<p>}
+```</p>
+
+<p>在Rcpp中, 透過C++的物件導向和template語法可以用下列的語法得到相同的效果：</p>
+
+<p>``` cpp return a R integer vector with Rcpp</p>
+
+<h1>include &lt;Rcpp.h></h1>
+
+<p>RcppExport SEXP foo()
+{</p>
+
+<pre><code>Rcpp::IntegerVector retval(2);
+retval[0] = 1;
+retval[1] = 2;
+return Rcpp::wrap( retval );
+</code></pre>
+
+<p>}
+```</p>
+
+<p>比較上面兩段語法後，我基於以下的理由比較喜歡Rcpp的語法:</p>
+
+<ol>
+<li><p>Rcpp的語法比較簡潔。尤其是在比較<code>INTEGER_POINTER(retval)[0]</code>和<code>retval[0]</code>，
+這種在真正寫功能時最常用到的語法，我比較喜歡使用後者。雖然你也可以再宣告一個指標:<code>int* retval_ptr = INTEGER_POINTER(retval)</code>
+來達到類似的效果，但是對我來說, 明明都是代表<code>retval</code>這個物件，卻需要宣告兩個變數就是彆扭。</p></li>
+<li><p>Rcpp可以使用更精確的型態。我認為比起<code>SEXP</code>或<code>NEW_INTEGER</code>，
+<code>IntegerVector</code>是更清楚的，而且也更簡潔。除了<code>IntegerVector</code>外，Rcpp之中也定義了許許多多的型態，
+甚至連<code>Matrix</code>、<code>Robj</code>(S4 object)和<code>environment</code>都有呢!</p></li>
+<li><p>在物件導向的語法中我就可以依循<b>RAII(<a href="http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization">Resource Acquisition Is Initialization</a>)</b>的原則來寫code，
+降低了memory leak等資源洩漏的可能，也免除了使用<code>PROTECT</code>、<code>UNPROTECT</code>的困擾。</p></li>
+</ol>
+
+
+<p>除了語法上吸引我之外，Rcpp還可以還可以和inline套件結合，直接在R內進行即時編譯；還可以和另一個套件sugar一起使用，再增加程式的執行效能。</p>
+
+<h3 id="install"> 安裝 </h3>
+
+
+<p>Rcpp的安裝非常簡單，和一般的R套件相同。有興趣的使用者還可以額外安裝inline或sugar來玩。
+Windows的使用者請額外安裝能編譯R的工具庫: <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a> ，並且記得到Rcpp的目錄中不要包含空白，否則用R CMD SHLIB編譯的時候會有錯誤。</p>
+
+<h3 id="compile"> 編譯 </h3>
+
+
+<ol>
+<li>使用inline，這也是最簡單的方式。以下是一個取自<a href="http://dirk.eddelbuettel.com/code/rcpp/Rcpp-FAQ.pdf">Frequently Asked Questions about Rcpp</a>的範例:</li>
+</ol>
+
+
+<p>``` r Compile with R package "inline"
+fx &lt;- cxxfunction(signature( x = "numeric" ), '</p>
+
+<pre><code>NumericVector xx(x);
+return wrap( std::accumulate( xx.begin(), xx.end(), 0.0));',
+plugin = "Rcpp")
+</code></pre>
+
+<p>res &lt;- fx( seq( 1, 10, by = 0.5 ) )
+res
+```</p>
+
+<ol>
+<li>使用R CMD SHLIB的話則需要調整compiler的參數。以下的範例是在bash底下執行，是透過修改環境變數的方式。</li>
+</ol>
+
+
+<p><code>bash Compile with R CMD SHLIB
+export PKG_LIBS=$(Rscript -e "Rcpp:::LdFlags()")
+export PKG_CXXFLAGS=$(Rscript -e "Rcpp::CxxFlags()")
+R CMD SHLIB myfile.cpp
+</code></p>
+
+<ol>
+<li>在R內呼叫Rcpp的函數<code>Rcpp:::SHLIB</code>來編譯。</li>
+</ol>
+
+
+<p><code>r Compile with Rcpp:::SHLIB
+Rcpp:::SHLIB("mysource.cpp")
+</code></p>
+
+<p>在windows底下，方法2.我花了很久才測出來(網路上找到資料是說只要Rcpp和他的父目錄名稱有空白就會出錯)!後來我大部分是用方法1和3了。</p>
+
+<h3 id="reference"> 參考資料 </h3>
+
+
+<ul>
+<li><a href="http://dirk.eddelbuettel.com/papers/Rcpp-introduction.pdf">Rcpp: Seamless R and C++ Interface</a></li>
+<li><a href="http://dirk.eddelbuettel.com/code/rcpp/Rcpp-FAQ.pdf">Frequently Asked Questions about Rcpp</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

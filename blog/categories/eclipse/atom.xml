@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: eclipse | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/eclipse/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-06-04T10:41:51+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[eclipse-plugin]]></title>
+    <link href="http://wush978.github.com/blog/2012/03/12/eclipse-plugin/"/>
+    <updated>2012-03-12T18:16:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/03/12/eclipse-plugin</id>
+    <content type="html"><![CDATA[<h1>相關的Eclipse Plugin</h1>
+
+
+<ul>
+<li><a href="http://subclipse.tigris.org/">Subclipse</a>
+
+<ul>
+<li>http://subclipse.tigris.org/update_1.8.x</li>
+</ul>
+</li>
+<li><a href="https://github.com/pulse00/Symfony-2-Eclipse-Plugin/blob/master/README.md">Symfony Eclipse Plugin</a>
+
+<ul>
+<li>http://pulse00.github.com/p2/</li>
+</ul>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[eclipse-svn-symfony]]></title>
+    <link href="http://wush978.github.com/blog/2012/03/09/eclipse-svn-symfony/"/>
+    <updated>2012-03-09T18:36:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/03/09/eclipse-svn-symfony</id>
+    <content type="html"><![CDATA[<h1>Subclipse功能簡介</h1>
+
+
+
+
+<h2>建立本機端的repository</h2>
+
+
+<ul>
+<li>於eclipse內打開SVN Repository的perspective</li>
+<li>於SVN Repositories視窗內右邊的倒三角形 -> New repository...</li>
+<li>選擇要建立repository的位置 -> OK</li>
+</ul>
+
+
+<h2>建立資料夾</h2>
+
+
+<ul>
+<li>右鍵點選repository -> New -> New remote folder</li>
+<li>輸入資料夾名稱</li>
+</ul>
+
+
+<h2>匯入資料</h2>
+
+
+<ul>
+<li>右鍵點選資料夾 -> Import...</li>
+<li>於Import directory內選擇要被匯入的資料</li>
+<li>於Comment:內輸入註解</li>
+<li>OK</li>
+</ul>
+
+
+<h2>Checkout並建立專案</h2>
+
+
+<ul>
+<li>右鍵點選要被Checkout的資料夾 -> Checkout...</li>
+<li>選擇Check out as a project configured using the New Project Wizard</li>
+<li>選擇Check out HEAD revision</li>
+<li>選擇Depth:為Fully recursive</li>
+<li>選擇Allow unversioned obstructions</li>
+<li>Finish</li>
+<li>選擇專案的種類為PHP Project</li>
+<li>剩下的步驟同Eclipse建立新專案的步驟</li>
+</ul>
+
+
+<h2 id="commit">送交至Repository(Commit)</h2>
+
+
+<ul>
+<li>右鍵點選已經被修改的檔案 -> Team -> Commit...</li>
+<li>視窗上方輸入要commit的message</li>
+<li>視窗下方確認要送交的檔案/目錄</li>
+<li>OK</li>
+<li>請不要在送交的message內使用中文</li>
+</ul>
+
+
+<h2>自專案中新增檔案/目錄</h2>
+
+
+<ul>
+<li>右鍵點選要新增至repository的檔案/目錄 -> Team -> Add to Version Control</li>
+<li>如果要取消, 請在右鍵點選要取消的檔案/目錄 -> Team -> Revert...</li>
+<li><a href="#commit">送交</a>要新增的檔案/目錄</li>
+</ul>
+
+
+<h2>更新Repository</h2>
+
+
+<ul>
+<li>右鍵點選要更新的檔案/目錄 -> Team -> Update to HEAD</li>
+</ul>
+
+
+<h2>刪除Repository內的檔案/目錄</h2>
+
+
+<ul>
+<li>刪除檔案/目錄</li>
+<li>送交</li>
+</ul>
+
+
+<h2>移動Repository內的檔案/目錄</h2>
+
+
+<ul>
+<li>移動檔案/目錄</li>
+<li>送交</li>
+</ul>
+
+
+<h2>解決衝突</h2>
+
+
+<ul>
+<li>送交時發生out of date錯誤</li>
+<li>更新時發現File conflicts</li>
+<li>Edit Conflict</li>
+<li>Mark Resolved...</li>
+<li>送交</li>
+</ul>
+
+
+<h2>清除暫存的登入帳號密碼</h2>
+
+
+<ul>
+<li>Windows -> Preference -> Team -> SVN 檢查Client Adapter</li>
+<li>依照<a href="http://subclipse.tigris.org/wiki/PluginFAQ#head-d507c29676491f4419997a76735feb6ef0aa8cf8">Subclipse Wiki FAQ</a>的指示清除對應的資料夾</li>
+</ul>
+
+
+<h1>Symfony和svn</h1>
+
+
+<ul>
+<li>於Repository內建立三個資料夾:
+
+<pre><code>myproject/
+  branches/
+  tags/
+  trunk/
+</code></pre></li>
+<li>複製Symfony資料夾至myproject內</li>
+<li>更改Symfony資料夾的名稱為專案名稱(以下仍繼續使用Symfony)</li>
+<li>右鍵點選Symfony/src -> Team -> Add to Version Control</li>
+<li>忽略下列檔案:
+
+<pre><code>vendor
+app/內的bootstrap*
+app/config/內的 parameters.ini
+app/cache/內的 *
+app/logs/內的 *
+web/內的 bundles
+</code></pre></li>
+</ul>
+
+
+<h1>參考資料</h1>
+
+
+<ul>
+<li><a href="http://symfony.com/doc/current/cookbook/workflow/new_project_svn.html">How to Create and store a Symfony2 Project in Subversion</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[php開發建置]]></title>
+    <link href="http://wush978.github.com/blog/2012/03/09/build-php-development-enviornment/"/>
+    <updated>2012-03-09T11:23:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/03/09/build-php-development-enviornment</id>
+    <content type="html"><![CDATA[<ul>
+<li><a href="#env">環境</a></li>
+<li><a href="#dev-tool">開發工具</a></li>
+<li><a href="#build-env">建置步驟</a>
+
+<ul>
+<li><a href="#IIS-php-fastcgi">安裝IIS7 + php-fastcgi</a></li>
+<li><a href="#eclipse-svn">安裝eclipse-PDT和svn</a></li>
+<li><a href="#import-svn">匯入既有的SVN Repository</a></li>
+<li><a href="#xdebug">安裝Xdebug</a></li>
+<li><a href="#remote-debug">設定遠端除錯環境</a></li>
+<li><a href="#database">設定php和MSSQL的連線</a></li>
+</ul>
+</li>
+<li><a href="#reference">參考網頁</a></li>
+</ul>
+
+
+<h1 id="env">環境</h1>
+
+
+<ul>
+<li>server: windows 2008 R2</li>
+<li>client: windows 7</li>
+<li>database: MSSQL 2008 R2 Express</li>
+</ul>
+
+
+<h1 id="dev-tool">開發工具</h1>
+
+
+<ul>
+<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">eclipse-PDT</a></li>
+<li>svn
+
+<ul>
+<li><a href="http://tortoisesvn.net/downloads.html">tortoise-svn</a></li>
+<li><a href="http://subclipse.tigris.org/">subclipse</a></li>
+</ul>
+</li>
+</ul>
+
+
+<p>ps. 本文件僅測試於IIS7, php5.3.10, eclipse-PDT 3.0.2, subclipse 1.8.x, XDebug 2.1.3</p>
+
+<h1 id="build-env">建置步驟</h1>
+
+
+
+
+<h2 id="IIS-php-fastcgi">安裝IIS7 + php-fastcgi</h2>
+
+
+<ol>
+<li>安裝IIS7
+
+<ul>
+<li>需安裝cgi</li>
+</ul>
+</li>
+<li>安裝<a href="http://windows.php.net/download/">php5.3</a>
+
+<ul>
+<li>下載VC9 x86 Non Thread Safe ZIP</li>
+<li>解壓縮到<em>c:\php</em></li>
+</ul>
+</li>
+<li>安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">Microsoft Visual C++ 2008 Redistributable Package (x86)</a></li>
+<li>測試以下的命令碼：
+
+<pre><code>c:\php\php.exe -i
+</code></pre>
+
+<p>ps. 如出現<em>side-by-side effect</em>的錯誤訊息表示步驟3有問題</p></li>
+<li>設定<em>php.ini</em>：
+
+<ul>
+<li>複製php.ini-development至php.ini</li>
+<li>修改以下內容：
+fastcgi.impersonate = 1
+cgi.fix_pathinfo = 1
+date.timezone = "Asia/Taipei"</li>
+</ul>
+</li>
+<li>設定fast-cgi Mapping Handler</li>
+<li>至<em>c:\inetpub\wwwroot</em>建立<em>phpinfo.php</em>並修改內容為:
+
+<pre><code>&lt;?php phpinfo() ?&gt;
+</code></pre></li>
+<li>打開*http://&lt;server的ip>/phpinfo.php須出現phpinfo畫面
+
+<ul>
+<li>如出現500可能是步驟5的<em>date.timezone</em>未設定成功</li>
+</ul>
+</li>
+</ol>
+
+
+<h2 id="eclipse-svn">安裝eclipse-PDT和svn</h2>
+
+
+<ol>
+<li>安裝jre, 雖然我不喜歡Oracle, 但這只是為了方便... <a href="http://java.com/en/download/manual.jsp">Sun Java</a></li>
+<li>下載eclipse-PDT並解壓縮至<em>c:\eclipse-php</em>
+ps. jre和eclipse-PDT必須同時為x86或x64</li>
+<li>執行<em>c:\eclipse-php\eclipse.exe</em></li>
+<li>安裝subclipse
+
+<ul>
+<li>Help -> Install New Software</li>
+<li>在Work with:欄位輸入<code>http://subclipse.tigris.org/update_1.8.x</code></li>
+<li>勾選Subclipse, SVNKit; 不勾選Subclipse底下的Subclipse Integration for Mylyn 3.x (Optional)</li>
+</ul>
+</li>
+</ol>
+
+
+<h2 id="import-svn">匯入既有的SVN Repository</h2>
+
+
+<ol>
+<li>於eclipse內打開<code>SVN repository Exploring</code> Perspective</li>
+<li>於SVN Repositories內點右鍵, 選New</li>
+<li>輸入svn repository的URL</li>
+</ol>
+
+
+<h2 id="xdebug">安裝XDebug</h2>
+
+
+<ol>
+<li>下載Xdebug Windows Binary(VC9 32bit)</li>
+<li>將下載的.dll複製至<em>c:\php\ext</em></li>
+<li>修改php.ini，新增以下內容
+
+<pre><code>[xdebug]
+zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
+</code></pre></li>
+<li>於命令列輸入<code>c:\php\php.exe -m</code>檢查輸出內有無xdebug</li>
+</ol>
+
+
+<h2 id="remote-debug">設定遠端除錯環境</h2>
+
+
+<ol>
+<li>修改要進行除錯的eclipse設定如下:
+
+<ul>
+<li>開啟PHP專案</li>
+<li>Windows -> Preferences -> PHP -> Debug
+將PHP Debugger從Zend Debugger改成Xdebug後，點選右邊的Configure...</li>
+<li>於Installed Debuggers內選Xdebug後點右邊的Configure</li>
+<li>Accept remote seesion (JIT) 從 off 改成 any 後點OK</li>
+<li>點Apply</li>
+</ul>
+</li>
+<li>設定要開網頁的瀏覽器(僅以Firefox為例)
+
+<ul>
+<li>安裝<a href="https://addons.mozilla.org/en-US/firefox/addon/58688/">easy Xdebug for FireFox</a></li>
+</ul>
+</li>
+<li>設定php.ini:
+
+<pre><code>[xdebug]
+zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
+xdebug.remote_enable=On
+xdebug.remote_handler="dbgp"
+xdebug.remote_mode="req"
+xdebug.remote_port=9000
+xdebug.remote_host="YOUR.IP.GOES.HERE"
+xdebug.remote_log=/path/to/xdebug_remote_log
+</code></pre></li>
+</ol>
+
+
+<h2 id="database">設定php和MSSQL的連線</h2>
+
+
+<ul>
+<li>下載並安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">VC++ 2008 Redistributable Package(x86)</a></li>
+<li>下載<a href="http://www.microsoft.com/download/en/details.aspx?id=20098#system-requirements">MS Driver 3.0 for SQL Server for PHP</a></li>
+<li>修改php.ini，新增:</li>
+</ul>
+
+
+<p><code>ini php.ini
+;...
+extension=c:\php\ext\php_pdo_sqlsrv_53_nts_vc9.dll
+;...
+</code></p>
+
+<ul>
+<li>檢查能否讀取</li>
+</ul>
+
+
+<p><code>sh
+c:\php\php -m
+</code></p>
+
+<p>看看有無<code>pdo_sqlsrv</code></p>
+
+<ul>
+<li>還要安裝其他相依套件，請參考<a href="http://go.microsoft.com/fwlink/?LinkId=163712"><code>http://go.microsoft.com/fwlink/?LinkId=163712</code></a>。</li>
+</ul>
+
+
+<p>ps. 由於我本來就已經有VC9版本的ODBC Client、pdo_sqlsrv VC9版本，所以我安裝這些版本沒問題，但是在安裝新下載的3.0版本卻問題一堆。等到之後我有和它奮鬥後再把心得Po上來吧。</p>
+
+<h1 id="reference">參考網頁</h1>
+
+
+<ul>
+<li><a href="" title="http://technet.microsoft.com/zh-tw/library/dd239230(v=ws.10).aspx">設定FastCGI以裝載PHP應用程式(IIS7)</a></li>
+<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">Eclipse PDT</a></li>
+<li><a href="http://subclipse.tigris.org/">Subclipse</a></li>
+<li><a href="http://xdebug.org/docs/install">Xdebug Installation</a></li>
+<li><a href="http://xdebug.org/docs/remote">Xdebug Remote Debugging</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
