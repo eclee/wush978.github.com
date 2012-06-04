@@ -9,9 +9,7 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="參考資料 Interactive charts and slides with R, googleVis and knitr
-R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and slidy
-">
+  <meta name="description" content="簡介 新版的RStudio(0.98.228) 推出了Using Markdown with RStudio，這對於我這個markdown愛好者來說可是大利多呀!! 簡單來說，就是透過以下的流程產生文件: Rmd &#8211;> Markdown &#8211;> HTML &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,7 +92,75 @@ R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and sl
   </header>
 
 
-<div class="entry-content"><h1>參考資料</h1>
+<div class="entry-content"><h1>簡介</h1>
+
+<p>新版的RStudio(0.98.228) 推出了<a href="http://www.rstudio.org/docs/authoring/using_markdown">Using Markdown with RStudio</a>，這對於我這個markdown愛好者來說可是大利多呀!!</p>
+
+<p>簡單來說，就是透過以下的流程產生文件:</p>
+
+<p>Rmd &#8211;> Markdown &#8211;> HTML</p>
+
+<p>這裡的Markdown同時還支援:</p>
+
+<ul>
+<li><a href="https://github.github.com/github-flavored-markdown">Github的擴充</a>，更方便的插入code block</li>
+<li><a href="https://github.com/tanoku/sundown">Sundown</a>，支援表格等其他功能</li>
+<li><a href="http://www.mathjax.org/">MathJax</a>，支援數學方程式</li>
+</ul>
+
+
+<p>想了就覺得非常方便!</p>
+
+<h1>使用</h1>
+
+<ol>
+<li>安裝R package <a href="http://yihui.name/knitr/">knitr</a>。我在2.13版本之前的R是無法安裝的，所以想試用的朋友記得把R的版本更新。</li>
+<li>打開Rstudio ，File &#8211;> New &#8211;> R Markdown</li>
+<li>編輯markdown檔案，儲存為<code>xxx.Rmd</code>或<code>xxx.md</code>。注意: 副檔名若為<code>md</code>，就無法使用嵌入R圖片的功能。</li>
+<li>點選編輯器上的<code>Knit HTML</code>就可以預覽產生的HTML格式。目前我個人在這部分遇到困難: 我沒有辦法把R畫出來的圖嵌入產生的HTML內。</li>
+</ol>
+
+
+<h1>語法範例</h1>
+
+<p>這裡是我試過的範例。有興趣的大大可以到<a href="https://github.com/yihui/knitr/tree/master/inst/examples">knitr-example</a> 看看更多的範例。</p>
+
+<ul>
+<li>嵌入R語法:
+
+<pre><code>  ``` {r}
+  cat("hello world")
+  ```
+</code></pre></li>
+<li>嵌入R圖面
+
+<pre><code>  ``` {r 圖片標題, message=FALSE, fig.width=7, fig.height=5}
+  plot(cars)
+  ```
+</code></pre></li>
+<li>行內嵌入方程式
+
+<pre><code>  $latex X_t = \mu_t + \varepsilon_t$
+</code></pre></li>
+<li>方程式區塊
+
+<pre><code>  $$latex
+      \begin{aligned}
+      X_t = \mu_t + \varepsilon_t \\
+      \varepsilon_t ~ Normal(0,1)
+      \end{aligned}
+  $$
+</code></pre></li>
+<li>跳脫字元
+
+<ul>
+<li>要跳脫<code>$latex</code>，使用HTML的語法: <code>&amp;#36;latex</code>
+
+<h1>參考資料</h1></li>
+</ul>
+</li>
+</ul>
+
 
 <p><a href="https://gist.github.com/2816027">Interactive charts and slides with R, googleVis and knitr</a>
 <a href="http://www.r-bloggers.com/interactive-html-presentation-with-r-googlevis-knitr-pandoc-and-slidy/">R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and slidy</a></p>
