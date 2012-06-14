@@ -9,8 +9,8 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="簡介 很少人能夠第一次寫程式就能寫對，就連最專業的程式設計師也會花大把大把的時間在除錯。
-所以熟悉除錯的工具也是能夠顯著的提昇寫程式的效率。 其實作者我在寫這篇文章之前也完全沒用過除錯工具！想到又能提昇自己的coding效率又讓我熊熊的燃燒起來！！ 除錯函數 R 提供了以下的除錯功能: &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,44 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/06/14/rmd/">Rmd</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-14T17:18:00+08:00" pubdate data-updated="true">Jun 14<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/06/14/rmd/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -902,16 +940,46 @@ NULL
 <li>跳脫字元
 
 <ul>
-<li>要跳脫<code>$latex</code>，使用HTML的語法: <code>&amp;#36;latex</code>
-
-<h1>參考資料</h1></li>
+<li>要跳脫<code>$latex</code>，使用HTML的語法: <code>&amp;#36;latex</code></li>
 </ul>
 </li>
 </ul>
 
 
+<h1>全命令列環境</h1>
+
+<p>根據stackoverflow裏的某位大大提示，其實knitr套件提供了直接在R中轉換.Rmd至.md的語法：</p>
+
+<figure class='code'><figcaption><span>rmd2md</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>require<span class="p">(</span>knitr<span class="p">)</span> <span class="c1"># required for knitting from rmd to md</span>
+</span><span class='line'>require<span class="p">(</span>markdown<span class="p">)</span> <span class="c1"># required for md to html </span>
+</span><span class='line'>knit<span class="p">(</span><span class="s">&#39;test.rmd&#39;</span><span class="p">,</span> <span class="s">&#39;test.md&#39;</span><span class="p">)</span> <span class="c1"># creates md file</span>
+</span><span class='line'>markdownToHTML<span class="p">(</span><span class="s">&#39;test.md&#39;</span><span class="p">,</span> <span class="s">&#39;test.html&#39;</span><span class="p">)</span> <span class="c1"># creates html file</span>
+</span><span class='line'>browseURL<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;file://&#39;</span><span class="p">,</span> file.path<span class="p">(</span>getwd<span class="p">(),</span><span class="s">&#39;test.html&#39;</span><span class="p">),</span> sep<span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">))</span> <span class="c1"># open file in browser</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>理解了這件事情後，就可以寫出Makefile來在命令列編譯。</p>
+
+<h1>我自己的擴充</h1>
+
+<p>我都是透過php + R 來拼湊出下面這耶東西，環境都是Ubuntu</p>
+
+<ul>
+<li><a href="https://github.com/wush978/knitr2octopress">knitr2octopress</a> : 將Rmd轉換出來的.md檔案內的圖片連結，轉換為使用<a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI scheme</a>的格式。</li>
+<li><a href="https://github.com/wush978/yml2rmd">yml2rmd</a> : 利用yml格式來產生大量圖表的.Rmd檔案，這個文件我還沒空寫, 以後慢慢補&#8230;</li>
+</ul>
+
+
+<h1>參考資料</h1>
+
 <p><a href="https://gist.github.com/2816027">Interactive charts and slides with R, googleVis and knitr</a>
-<a href="http://www.r-bloggers.com/interactive-html-presentation-with-r-googlevis-knitr-pandoc-and-slidy/">R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and slidy</a></p>
+<a href="http://www.r-bloggers.com/interactive-html-presentation-with-r-googlevis-knitr-pandoc-and-slidy/">R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and slidy</a>
+<a href="http://stackoverflow.com/questions/10646665/how-to-convert-r-markdown-to-html-i-e-what-does-knit-html-do-in-rstudio-0-9">How to convert R Markdown to HTML? I.e., What does “Knit HTML” do in Rstudio 0.96?</a></p>
 </div>
   
   
@@ -1808,6 +1876,10 @@ Windows的使用者請額外安裝能編譯R的工具庫: <a href="http://cran.r
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/06/14/rmd/">Rmd</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/06/14/r-debug/">R debug</a>
       </li>
     
@@ -1821,10 +1893,6 @@ Windows的使用者請額外安裝能編譯R的工具庫: <a href="http://cran.r
     
       <li class="post">
         <a href="/blog/2012/03/12/eclipse-plugin/">eclipse-plugin</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/03/09/eclipse-svn-symfony/">eclipse-svn-symfony</a>
       </li>
     
   </ul>

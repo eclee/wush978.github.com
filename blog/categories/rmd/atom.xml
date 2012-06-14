@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rmd | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/rmd/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-06-14T17:25:37+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rmd]]></title>
+    <link href="http://wush978.github.com/blog/2012/06/14/rmd/"/>
+    <updated>2012-06-14T17:18:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/06/14/rmd</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>
