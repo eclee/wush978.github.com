@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-06-14T17:02:38+08:00</updated>
+  <updated>2012-06-14T17:13:37+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -254,6 +254,45 @@ Browse[1]> c</p>
 
 <p>可以看到第一次browser是在執行test_func之前，所以<code>a</code>不存在。
 第二次則是離開的時候，所以<code>a</code>為<code>3</code>。</p>
+
+<p><code>r
+test_func &lt;- function() {
+  a &lt;- 1
+  a &lt;- 2
+  a &lt;- 3
+}
+trace(test_func, quote(print(a)), at=3:4) #利用quote直接插入print(a)到程式中
+body(test_func)
+test_func()
+</code></p>
+
+<p>``` rconsole</p>
+
+<blockquote><p>body(test_func)
+{</p>
+
+<pre><code>a &lt;- 1
+{
+    .doTrace(print(a), "step 3")
+    a &lt;- 2
+}
+{
+    .doTrace(print(a), "step 4")
+    a &lt;- 3
+}
+</code></pre>
+
+<p>}
+test_func()
+Tracing test_func() step 3
+[1] 1
+Tracing test_func() step 4
+[1] 2</p>
+
+<p>```</p></blockquote>
+
+<p>搭配quote使用可以直接更改function的程式碼，好用好用！
+注意at參數所代表的位置！！(讓我滿意外的)</p>
 
 <h1>Reference</h1>
 

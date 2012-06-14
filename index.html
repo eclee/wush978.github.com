@@ -431,6 +431,69 @@
 <p>可以看到第一次browser是在執行test_func之前，所以<code>a</code>不存在。
 第二次則是離開的時候，所以<code>a</code>為<code>3</code>。</p>
 
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>test_func <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">1</span>
+</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">2</span>
+</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">3</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>trace<span class="p">(</span>test_func<span class="p">,</span> quote<span class="p">(</span>print<span class="p">(</span>a<span class="p">)),</span> at<span class="o">=</span><span class="m">3</span>:<span class="m">4</span><span class="p">)</span> <span class="c1">#利用quote直接插入print(a)到程式中</span>
+</span><span class='line'>body<span class="p">(</span>test_func<span class="p">)</span>
+</span><span class='line'>test_func<span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>body<span class="p">(</span>test_func<span class="p">)</span>
+</span><span class='line'><span class="go">{</span>
+</span><span class='line'><span class="go">    a &lt;- 1</span>
+</span><span class='line'><span class="go">    {</span>
+</span><span class='line'><span class="go">        .doTrace(print(a), &quot;step 3&quot;)</span>
+</span><span class='line'><span class="go">        a &lt;- 2</span>
+</span><span class='line'><span class="go">    }</span>
+</span><span class='line'><span class="go">    {</span>
+</span><span class='line'><span class="go">        .doTrace(print(a), &quot;step 4&quot;)</span>
+</span><span class='line'><span class="go">        a &lt;- 3</span>
+</span><span class='line'><span class="go">    }</span>
+</span><span class='line'><span class="go">}</span>
+</span><span class='line'><span class="gp">&gt; </span>test_func<span class="p">()</span>
+</span><span class='line'><span class="go">Tracing test_func() step 3 </span>
+</span><span class='line'><span class="go">[1] 1</span>
+</span><span class='line'><span class="go">Tracing test_func() step 4 </span>
+</span><span class='line'><span class="go">[1] 2</span>
+</span><span class='line'><span class="gp">&gt; </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>搭配quote使用可以直接更改function的程式碼，好用好用！
+注意at參數所代表的位置！！(讓我滿意外的)</p>
+
 <h1>Reference</h1>
 
 <p><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a></p>
