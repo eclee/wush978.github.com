@@ -2,40 +2,44 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://wush978.github.com/blog/2012/02/28/rcpp/</loc>
-        <lastmod>2012-06-04T10:40:38+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/02/29/rdatetime/</loc>
-        <lastmod>2012-06-04T10:40:44+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/03/09/build-php-development-enviornment/</loc>
-        <lastmod>2012-06-04T10:41:08+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/03/09/eclipse-svn-symfony/</loc>
-        <lastmod>2012-06-04T10:41:21+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/03/12/eclipse-plugin/</loc>
-        <lastmod>2012-06-04T10:41:32+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://wush978.github.com/blog/2012/06/04/shi-yong-interactive-charts-and-slides-with-r/
         </loc>
-        <lastmod>2012-06-04T13:12:04+08:00</lastmod>
+        <lastmod>2012-06-13T15:38:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/06/04/rcpp-2/</loc>
-        <lastmod>2012-06-04T15:21:53+08:00</lastmod>
+        <lastmod>2012-06-14T10:31:28+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://wush978.github.com/blog/2012/06/14/r-debug/</loc>
+        <lastmod>2012-06-14T16:48:04+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/archives/</loc>
-        <lastmod>2012-06-04T15:21:53+08:00</lastmod>
+        <lastmod>2012-06-14T16:48:04+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/</loc>
-        <lastmod>2012-06-04T15:21:53+08:00</lastmod>
+        <lastmod>2012-06-14T16:48:04+08:00</lastmod>
     </url>
 </urlset>
