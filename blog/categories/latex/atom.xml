@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Latex | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/latex/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-06-20T13:16:58+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Latex in Octopress]]></title>
+    <link href="http://wush978.github.com/blog/2012/06/20/latex-in-octopress/"/>
+    <updated>2012-06-20T13:01:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/06/20/latex-in-octopress</id>
+    <content type="html"><![CDATA[<p>大致上參考<a href="http://chen.yanping.me/cn/blog/2012/03/10/octopress-with-latex/">在Octopress中使用Latex</a>即可。</p>
+
+<h1>安裝</h1>
+
+<ol>
+<li>安裝kramdown
+<code>sh install-kramdown
+gem install kramdown
+</code></li>
+<li>修改<code>/source/_includes/custom/head.html</code>
+``` html head.html</li>
+</ol>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+
+
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<p>```</p>
+
+<h1>使用注意事項</h1>
+
+<ol>
+<li>這個是我自己測出來的bug: <em>在latex中的符號 <code>^</code> 之後要接空格才能正常使用</em>。</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>

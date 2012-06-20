@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/c-/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-06-15T13:43:33+08:00</updated>
+  <updated>2012-06-20T13:16:58+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,317 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cormen Chp6]]></title>
+    <link href="http://wush978.github.com/blog/2012/06/18/cormen-chp6/"/>
+    <updated>2012-06-18T22:53:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/06/18/cormen-chp6</id>
+    <content type="html"><![CDATA[<h1>Heapsort</h1>
+
+<h2>6.1 Heaps</h2>
+
+<h3>Heap Introduction</h3>
+
+<ul>
+<li>sorts $n$ elements in $O(nlog(n))$</li>
+<li>in place
+  ps. <em>in place</em> : only used $O(1)$ additional memory to store data</li>
+<li>heat property: $$\mbox{Parent[PARENT(i)] } \leq \mbox{ A[i]}$$</li>
+</ul>
+
+
+<h3>Exercise</h3>
+
+<h4>6.1-1</h4>
+
+<p>min: $2 ^ h$<br/>
+max: $2 ^ h - 1$</p>
+
+<h4>6.1-2</h4>
+
+<p>Mathematical Induction</p>
+
+<h4>6.1-3</h4>
+
+<p>Trivial</p>
+
+<h4>6.1-4</h4>
+
+<p>Leaf</p>
+
+<h4>6.1-5</h4>
+
+<p>Yes, it is</p>
+
+<h4>6.1-6</h4>
+
+<p>No, $6 &lt; 7$</p>
+
+<h4>6.1-7</h4>
+
+<p>Proof:
+$$
+\begin{eqnarray}
+&amp; &amp; k \mbox{-th element is a leaf iff } 2k > n \newline
+&amp;\Rightarrow&amp; k \geq \lfloor n/2 \rfloor + 1
+\end{eqnarray}
+$$</p>
+
+<h2>6.2 Maintaining the heap property</h2>
+
+<p><code>MaxHeapify(A,i)</code> convert a heap that the subtree rooted at $2 i$ and
+$2 i + 1$ are max-heaps, but $A[i]$ might be smaller than one of its
+child, thus violating the max-heap property.</p>
+
+<p>The idea is to float-down $A[i]$.</p>
+
+<h3>Exercise</h3>
+
+<h4>6.2-6</h4>
+
+<p>Give a special case such as root 0 and node 1.</p>
+
+<h2>6.3 Building a heap</h2>
+
+<p>Do <code>MaxHeapify(A,i)</code> from the leaf to the root.</p>
+
+<ul>
+<li>Initial: leaf is a valid subtree with heap property</li>
+<li>Maintain: for each step of heapify, heap property is maintained</li>
+<li>Termination:</li>
+</ul>
+
+
+<h3>Exercise</h3>
+
+<h4>6.3-2</h4>
+
+<p>Because <code>MaxHeapify(A,i)</code> needs <code>left(i)</code> and <code>right(i)</code> are subtree
+with heap property.</p>
+
+<h2>6.4 The heapsort algorithm</h2>
+
+<h1>My own implementation</h1>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Heap.hpp  (Heap.hpp)</span> <a href='/downloads/code/cormen/data_structure/Heap.hpp'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/shared_ptr.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &quot;cormen.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;data_structure/Array.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">cormen</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>	<span class="k">namespace</span> <span class="n">data_structure</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>		<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">_T</span><span class="o">&gt;</span>
+</span><span class='line'>		<span class="k">class</span> <span class="nc">Heap</span> <span class="p">{</span>
+</span><span class='line'>			<span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">_array</span><span class="p">;</span>
+</span><span class='line'>		<span class="k">public</span><span class="o">:</span>
+</span><span class='line'>			<span class="n">Heap</span><span class="p">(</span><span class="k">const</span> <span class="n">Count</span> <span class="n">size</span><span class="p">,</span> <span class="k">const</span> <span class="n">_T</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="o">:</span> <span class="n">_array</span><span class="p">(</span><span class="k">new</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">src</span><span class="p">))</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>			<span class="n">Heap</span><span class="p">(</span><span class="k">const</span> <span class="n">Heap</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="o">:</span> <span class="n">_array</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">_array</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>			<span class="n">Heap</span><span class="p">(</span><span class="n">_T</span><span class="o">*</span> <span class="n">src</span><span class="p">,</span> <span class="k">const</span> <span class="n">Count</span> <span class="n">size</span><span class="p">)</span> <span class="o">:</span> <span class="n">_array</span><span class="p">(</span><span class="k">new</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>			<span class="o">~</span><span class="n">Heap</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>			
+</span><span class='line'>			<span class="cm">/**</span>
+</span><span class='line'><span class="cm">			 * data interfaces</span>
+</span><span class='line'><span class="cm">			 */</span>
+</span><span class='line'>			<span class="kt">void</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Heap</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span> <span class="n">_array</span> <span class="o">=</span> <span class="n">src</span><span class="p">.</span><span class="n">_array</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>			<span class="n">_T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="k">const</span> <span class="n">Index</span> <span class="n">index</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_array</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">index</span><span class="p">);</span> <span class="p">}</span>
+</span><span class='line'>			<span class="k">const</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_array</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
+</span><span class='line'>			<span class="n">_T</span><span class="o">*</span> <span class="n">getRootPtr</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">_array</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span> <span class="p">}</span>
+</span><span class='line'>			<span class="kt">void</span> <span class="n">setSize</span><span class="p">(</span><span class="n">Count</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span> <span class="n">_array</span><span class="o">-&gt;</span><span class="n">setSize</span><span class="p">(</span><span class="n">size</span><span class="p">);</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>			<span class="cm">/**</span>
+</span><span class='line'><span class="cm">			 * Cormen 6.3</span>
+</span><span class='line'><span class="cm">			 */</span>
+</span><span class='line'>			<span class="kt">void</span> <span class="n">heapify</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>					<span class="k">return</span><span class="p">;</span>
+</span><span class='line'>				<span class="p">}</span>
+</span><span class='line'>				<span class="k">for</span><span class="p">(</span><span class="n">Index</span> <span class="n">i</span><span class="p">(</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">);</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;)</span> <span class="p">{</span>
+</span><span class='line'>					<span class="k">this</span><span class="o">-&gt;</span><span class="n">heapify</span><span class="p">(</span><span class="o">--</span><span class="n">i</span><span class="p">);</span>
+</span><span class='line'>				<span class="p">}</span>
+</span><span class='line'>			<span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>			<span class="k">static</span> <span class="k">const</span> <span class="n">Index</span> <span class="n">parent</span><span class="p">(</span><span class="k">const</span> <span class="n">Index</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="p">(</span><span class="n">src</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>			<span class="k">static</span> <span class="k">const</span> <span class="n">Index</span> <span class="n">left</span><span class="p">(</span><span class="k">const</span> <span class="n">Index</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">src</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>			<span class="k">static</span> <span class="k">const</span> <span class="n">Index</span> <span class="n">right</span><span class="p">(</span><span class="k">const</span> <span class="n">Index</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>		<span class="k">private</span><span class="o">:</span>
+</span><span class='line'>			<span class="cm">/**</span>
+</span><span class='line'><span class="cm">			 * Cormen 6.2</span>
+</span><span class='line'><span class="cm">			 * Requirement: left(i) and right(i) are root of 2 heap subtree</span>
+</span><span class='line'><span class="cm">			 * ( satisfying heap property )</span>
+</span><span class='line'><span class="cm">			 */</span>
+</span><span class='line'>			<span class="kt">void</span> <span class="n">heapify</span><span class="p">(</span><span class="n">Index</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>				<span class="n">Heap</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>				<span class="n">Index</span>
+</span><span class='line'>					<span class="n">l</span> <span class="o">=</span> <span class="n">Heap</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;::</span><span class="n">left</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+</span><span class='line'>					<span class="n">r</span> <span class="o">=</span> <span class="n">Heap</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;::</span><span class="n">right</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span><span class='line'>				<span class="n">Index</span> <span class="n">largest</span><span class="p">;</span>
+</span><span class='line'>				<span class="k">if</span> <span class="p">(</span><span class="n">l</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">_array</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">A</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span class='line'>					<span class="n">largest</span> <span class="o">=</span> <span class="n">l</span><span class="p">;</span>
+</span><span class='line'>				<span class="k">else</span>
+</span><span class='line'>					<span class="n">largest</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>				<span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">_array</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">A</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">largest</span><span class="p">])</span>
+</span><span class='line'>					<span class="n">largest</span> <span class="o">=</span> <span class="n">r</span><span class="p">;</span>
+</span><span class='line'>				<span class="k">if</span> <span class="p">(</span><span class="n">largest</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>					<span class="n">_T</span> <span class="n">temp</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>					<span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">largest</span><span class="p">];</span>
+</span><span class='line'>					<span class="n">A</span><span class="p">[</span><span class="n">largest</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span><span class='line'>					<span class="n">A</span><span class="p">.</span><span class="n">heapify</span><span class="p">(</span><span class="n">largest</span><span class="p">);</span>
+</span><span class='line'>				<span class="p">}</span>
+</span><span class='line'>			<span class="p">}</span>
+</span><span class='line'>		<span class="p">};</span>
+</span><span class='line'>	<span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>HeapSort.hpp  (HeapSort.hpp)</span> <a href='/downloads/code/cormen/sorting/HeapSort.hpp'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * HeapSort.hpp</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> *  Created on: Jun 20, 2012</span>
+</span><span class='line'><span class="cm"> *      Author: wush</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#ifndef HEAPSORT_HPP_</span>
+</span><span class='line'><span class="cp">#define HEAPSORT_HPP_</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;data_structure/Heap.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">cormen</span> <span class="p">{</span>
+</span><span class='line'>	<span class="k">namespace</span> <span class="n">sorting</span> <span class="p">{</span>
+</span><span class='line'>		<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">_T</span><span class="o">&gt;</span>
+</span><span class='line'>		<span class="kt">void</span> <span class="n">heap_sort</span><span class="p">(</span><span class="n">_T</span><span class="o">*</span> <span class="n">start</span><span class="p">,</span> <span class="n">Count</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">size</span><span class="p">)</span>
+</span><span class='line'>				<span class="k">return</span><span class="p">;</span>
+</span><span class='line'>			<span class="n">cormen</span><span class="o">::</span><span class="n">data_structure</span><span class="o">::</span><span class="n">Heap</span><span class="o">&lt;</span><span class="n">_T</span><span class="o">&gt;</span> <span class="n">heap</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span><span class='line'>			<span class="n">heap</span><span class="p">.</span><span class="n">heapify</span><span class="p">();</span>
+</span><span class='line'>			<span class="n">_T</span> <span class="n">swap</span><span class="p">;</span>
+</span><span class='line'>			<span class="k">for</span><span class="p">(</span> <span class="n">Index</span> <span class="n">i</span><span class="p">(</span><span class="n">size</span><span class="p">);</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>				<span class="n">swap</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>				<span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="o">--</span><span class="n">i</span><span class="p">];</span>
+</span><span class='line'>				<span class="n">heap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">swap</span><span class="p">;</span>
+</span><span class='line'>				<span class="n">heap</span><span class="p">.</span><span class="n">setSize</span><span class="p">(</span><span class="o">--</span><span class="n">size</span><span class="p">);</span>
+</span><span class='line'>				<span class="n">heap</span><span class="p">.</span><span class="n">heapify</span><span class="p">();</span>
+</span><span class='line'>			<span class="p">}</span>
+</span><span class='line'>		<span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>	<span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">#endif </span><span class="cm">/* HEAPSORT_HPP_ */</span><span class="cp"></span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h1>Reference</h1>
+
+<p>See my github repository: <a href="https://github.com/wush978/cormen">cormen</a> for details of the code.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Rcpp-2]]></title>

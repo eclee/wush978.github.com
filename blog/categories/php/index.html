@@ -29,6 +29,38 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -129,6 +161,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/06/20/latex-in-octopress/">Latex in Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/18/cormen-chp6/">Cormen Chp6</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/06/14/profiling-r-code/">Profiling R code</a>
       </li>
     
@@ -138,14 +178,6 @@
     
       <li class="post">
         <a href="/blog/2012/06/04/rcpp-2/">Rcpp-2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/04/shi-yong-interactive-charts-and-slides-with-r/">試用Interactive charts and slides with R</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/03/12/eclipse-plugin/">eclipse-plugin</a>
       </li>
     
   </ul>
