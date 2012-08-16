@@ -9,14 +9,7 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="R 中function也可以是一種物件型態，或稱做叫作closure: 1
-2
-&gt; typeof(rnorm)
-[1] &quot;closure&quot; 要比較兩個function物件，則可透過body這個函數： 1
-2
-3
-4
-&gt; body(rnorm) == body( &hellip;">
+  <meta name="description" content="Here I&#8217;ll show how to set up my parallel computing environment of R. Introduction As far as I know, the virtualization for linux with OpenVZ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -115,6 +108,676 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/16/proxmox-and-r-cluster/">Proxmox &amp; R Cluster</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-16T11:57:00+08:00" pubdate data-updated="true">Aug 16<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/16/proxmox-and-r-cluster/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Here I&#8217;ll show how to set up my parallel computing environment of R.</p>
+
+<h1>Introduction</h1>
+
+<p>As far as I know, the virtualization for linux with <a href="http://wiki.openvz.org/Main_Page">OpenVZ</a> does not loss too many computation efficiency.
+Moreover, it provides a simple way to <em>copy</em> whole computation environment from one machine to another.
+The consistency of the environment reduces the difficulty of setting MPI between machines, so I decide
+to build my R cluster under Proxmox, which is an easy to use open source virtualization platform.</p>
+
+<h1>Environment</h1>
+
+<p>OS:</p>
+
+<ul>
+<li>Host OS: <a href="http://www.proxmox.com/">Proxmox</a>(Version 2.1-1/fb0f63a)</li>
+<li>Container OS: <a href="http://www.ubuntu.com/">Ubuntu Precise</a>(Version 12.04)</li>
+</ul>
+
+
+<p>Software(Installed in Container OS):</p>
+
+<ul>
+<li><a href="http://www.r-project.org/">R</a>(Version 2.14.1)
+
+<ul>
+<li><a href="http://www.stats.uwo.ca/faculty/yu/Rmpi/">Rmpi</a>(Version 0.5-9)</li>
+<li><a href="http://cran.r-project.org/web/packages/snow/index.html">snow</a>(Version 0.3-10)</li>
+</ul>
+</li>
+<li><a href="http://rstudio.org/">Rstudio</a>(Version 0.96.316)</li>
+<li><a href="http://packages.ubuntu.com/precise/mpich2">MPICH2</a>(Version 1.4.1)</li>
+</ul>
+
+
+<h1>Set up Proxmox Cluster</h1>
+
+<h2>Install Proxmox</h2>
+
+<p>Please see <a href="http://pve.proxmox.com/wiki/Installation">Proxmox Installation</a></p>
+
+<h2>Set up Proxmox Cluster</h2>
+
+<p>Please see <a href="http://pve.proxmox.com/wiki/Proxmox_VE_Cluster#Create_a_Proxmox_VE_Cluster">Create a Proxmox VE Cluster</a></p>
+
+<h2>Create a container</h2>
+
+<p>An easy way is to create the container under the management console of Proxmox.</p>
+
+<p>Please download the container template from [http://wiki.openvz.org/Download/template/precreated] and put it under <code>/var/lib/vz/template/cache/</code>.</p>
+
+<p>Here, I write small shell script (modified from <a href="https://raw.github.com/drivard/openvz-create-container-script/master/createvz.sh">Here</a>)
+to create the virtual container with 6 CPUs, 2G memory and 32G disk:</p>
+
+<figure class='code'><figcaption><span>create_vz.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="c">#! /bin/bash</span>
+</span><span class='line'><span class="nv">VZUID</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+</span><span class='line'><span class="nv">VZHOSTNAME</span><span class="o">=</span><span class="s2">&quot;$2&quot;</span>
+</span><span class='line'><span class="nv">VZIP</span><span class="o">=</span><span class="s2">&quot;$3&quot;</span>
+</span><span class='line'><span class="nv">VZTEMPLATE</span><span class="o">=</span><span class="s2">&quot;$4&quot;</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="nv">$1</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$2</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$3</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$4</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'>  /usr/bin/pvectl create <span class="nv">$VZUID</span> <span class="nv">$VZTEMPLATE</span> --cpus 6 --disk 32 --hostname <span class="nv">$VZHOSTNAME</span> --memory 2048 --swap 2048 --nameserver 8.8.8.8 --password initpasswd --pool Rslaves --netif <span class="nv">ifname</span><span class="o">=</span>eth0,mac<span class="o">=</span><span class="k">$(</span>./macgen.py<span class="k">)</span>,host_ifname<span class="o">=</span>veth103.0,host_mac<span class="o">=</span>&lt;host_mac&gt;,bridge<span class="o">=</span>vmbr0
+</span><span class='line'>  /usr/bin/pvectl <span class="nb">set</span> <span class="nv">$VZUID</span> --ip_address <span class="nv">$VZIP</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;./create_vz.sh &lt;UID&gt; &lt;HOSTNAME&gt; &lt;IP&gt; &lt;TEMPLATE&gt;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /usr/bin/pvectl list
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the initial root password is <em>initpasswd</em> and the user need to fill <host_mac> according to the mac address of the host.(run <code>ifconfig</code> in host machine or check the setting of the container created in management console).</p>
+
+<p>The mac address is initialized according to the following python scripts:</p>
+
+<figure class='code'><figcaption><span>macgen.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#! /usr/bin/python</span>
+</span><span class='line'><span class="c"># Filename: macgen.py</span>
+</span><span class='line'><span class="c"># Usage: It&#39;s intended to generate MAC addresses for virtualized</span>
+</span><span class='line'><span class="c">#        systems that created by Xen, OpenVZ, Vserver etc.</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">random</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># The first line is defined for specified vendor</span>
+</span><span class='line'><span class="n">mac</span> <span class="o">=</span> <span class="p">[</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x24</span><span class="p">,</span> <span class="mh">0x81</span><span class="p">,</span>
+</span><span class='line'><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7f</span><span class="p">),</span>
+</span><span class='line'><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">),</span>
+</span><span class='line'><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">)</span> <span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s">&quot;</span><span class="si">%02x</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">,</span> <span class="n">mac</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After creating <em>create_vz.sh</em> and <em>macgen.py</em> and put them into the same directory,
+run the shell command <code>./create_vz.sh 200 Rmaster 192.168.0.100 /var/lib/vz/template/cache/ubuntu-12.04-x86_64.tar.gz</code></p>
+
+<pre><code>Creating container private area (/var/lib/vz/template/cache/ubuntu-12.04-x86_64.tar.gz)
+Performing postcreate actions
+CT configuration saved to /etc/pve/openvz/200.conf
+Container private area was created
+CT configuration saved to /etc/pve/openvz/200.conf
+</code></pre>
+
+<h1>Set up the prototype of container</h1>
+
+<p>I will set up everything in one container and copy it to other machines in Proxmox Cluster.</p>
+
+<p>Note that the following commands are executed in the container under root privilege.</p>
+
+<h2>Initialize</h2>
+
+<p>Login the virtual machine via ssh(<code>ssh root@192.168.0.100</code>) with the initial root password.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>locale-gen --lang en_US en_US.UTF-8
+</span><span class='line'>apt-get update
+</span><span class='line'>apt-get upgrade -y
+</span><span class='line'>apt-get install build-essential -y
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Install R</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>apt-get install r-base -y
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Set <em>/etc/hosts</em></h2>
+
+<p>Here I&#8217;ll set up a clusters with 3 machines:</p>
+
+<figure class='code'><figcaption><span>/etc/hosts</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>192.168.0.100 Rmaster
+</span><span class='line'>192.168.0.101 Rslave1
+</span><span class='line'>192.168.0.102 Rslave2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Set SSH</h2>
+
+<p>Enable ssh public key authentication.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>adduser ruser
+</span><span class='line'>su ruser
+</span><span class='line'>ssh-keygen -t dsa -N &quot;&quot; -f ~/.ssh/id_rsa
+</span><span class='line'>cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+</span><span class='line'>exit
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Test</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>sudo -u ruser ssh ruser@localhost
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We should directly login without prompt of password.</p>
+
+<h2>Install MPICH2</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>apt-get install mpich2 -y
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Check Install Result</p>
+
+<p>Run <code>mpich2version</code></p>
+
+<pre><code>MPICH2 Version:         1.4.1
+MPICH2 Release date:    Wed Aug 24 14:40:04 CDT 2011
+MPICH2 Device:          ch3:nemesis
+MPICH2 configure:       --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix}/include --mandir=${prefix}/share/man --infodir=${prefix}/share/info --sysconfdir=/etc --localstatedir=/var --libexecdir=${prefix}/lib/mpich2 --srcdir=. --disable-maintainer-mode --disable-dependency-tracking --disable-silent-rules --enable-shared --prefix=/usr --enable-fc --disable-rpath --sysconfdir=/etc/mpich2 --includedir=/usr/include/mpich2 --docdir=/usr/share/doc/mpich2 --with-hwloc-prefix=system --enable-checkpointing --with-hydra-ckpointlib=blcr
+MPICH2 CC:      gcc  -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -Werror=format-security -Wall  -O2
+MPICH2 CXX:     c++  -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -Werror=format-security -Wall -O2
+MPICH2 F77:     gfortran  -g -O2 -O2
+MPICH2 FC:      gfortran   -O2
+</code></pre>
+
+<h2>Install Rmpi with MPICH2</h2>
+
+<p>Comment out origin setting of <code>CC</code> and <code>SHLIB_LD</code>.
+Add:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>#CC = ...
+</span><span class='line'>CC = mpicc
+</span><span class='line'>...
+</span><span class='line'>#SHLIB_LD = ...
+</span><span class='line'>SHLIB_LD=mpicc
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Open <em>R</em> console and execute following commands to install <em>Rmpi</em> with <em>MPICH2</em>:</p>
+
+<figure class='code'><figcaption><span>install Rmpi</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>install.packages<span class="p">(</span><span class="s">&#39;Rmpi&#39;</span><span class="p">,</span>configure.args<span class="o">=</span><span class="s">&quot;--with-Rmpi-type=MPICH2 --with-Rmpi-include=/usr/lib/mpich2/include --with-Rmpi-libpath=/usr/lib/mpich2/lib/ --with-mpi=/usr/include/mpich2/&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Recover <em>/etc/R/Makeconf</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>CC = ...
+</span><span class='line'>#CC = mpicc
+</span><span class='line'>...
+</span><span class='line'>SHLIB_LD = ...
+</span><span class='line'>#SHLIB_LD=mpicc
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Modify <em>/usr/local/lib/R/site-library/Rmpi/Rslaves.sh</em> line 17:</p>
+
+<figure class='code'><figcaption><span>/usr/local/lib/R/site-library/Rmpi/Rslaves.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>...
+</span><span class='line'>        $R_HOME/bin/R --no-init-file --slave --no-save &lt; $1 &gt; /tmp/$hn.$2.$$.log 2&gt;&amp;1
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that without modification of <em>/usr/local/lib/R/site-library/Rmpi/Rslaves.sh</em> will produce <em>Permission denied</em> during <code>mpi.spawn.Rslaves</code>.</p>
+
+<h2>Install snow</h2>
+
+<p>Install <em>snow</em></p>
+
+<figure class='code'><figcaption><span>insatll snow</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>install.packages<span class="p">(</span><span class="s">&quot;snow&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Spread Prototype</h1>
+
+<p>In this section, the commands are executed in host OS (Proxmox) if there is no further explanation.</p>
+
+<h2>Shutdown the prototype of container</h2>
+
+<p>Before deploying the prototype of container to other machines, I suggest
+to shutdown the prototype.</p>
+
+<figure class='code'><figcaption><span>Under container</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>init 0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Backup the Snapshot of the container</h2>
+
+<p>run <code>vzdump -dumpdir . 200</code></p>
+
+<figure class='code'><figcaption><span>Under container</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>INFO: starting new backup job: vzdump 200 --dumpdir .
+</span><span class='line'>INFO: Starting Backup of VM 200 <span class="o">(</span>openvz<span class="o">)</span>
+</span><span class='line'>INFO: CTID 200 exist unmounted down
+</span><span class='line'>INFO: <span class="nv">status</span> <span class="o">=</span> stopped
+</span><span class='line'>INFO: backup mode: stop
+</span><span class='line'>INFO: ionice priority: 7
+</span><span class='line'>INFO: creating archive <span class="s1">&#39;./vzdump-openvz-200-2012_08_16-13_53_23.tar&#39;</span>
+</span><span class='line'>INFO: Total bytes written: 960901120 <span class="o">(</span>917MiB, 716MiB/s<span class="o">)</span>
+</span><span class='line'>INFO: archive file size: 916MB
+</span><span class='line'>INFO: delete old backup <span class="s1">&#39;./vzdump-openvz-200-2012_08_16-13_33_40.tar&#39;</span>
+</span><span class='line'>INFO: Finished Backup of VM 200 <span class="o">(</span>00:00:02<span class="o">)</span>
+</span><span class='line'>INFO: Backup job finished successfully
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The Proxmox will dump the environment of the prototype container to one file whose size is about 1G.
+Note that <em>200</em> is the <em>uid</em> of the prototype.</p>
+
+<h2>Copy the prototype</h2>
+
+<p>I spread the prototype with the following shell scripts.</p>
+
+<p>Please remember to modify the <host_mac> or other settings to fit your own environment.</p>
+
+<figure class='code'><figcaption><span>spread_vz.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="c">#! /bin/bash</span>
+</span><span class='line'><span class="nv">VZUID</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+</span><span class='line'><span class="nv">VZHOSTNAME</span><span class="o">=</span><span class="s2">&quot;$2&quot;</span>
+</span><span class='line'><span class="nv">VZIP</span><span class="o">=</span><span class="s2">&quot;$3&quot;</span>
+</span><span class='line'><span class="nv">VZDUMP</span><span class="o">=</span><span class="s2">&quot;$4&quot;</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="nv">$1</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$2</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$3</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="nv">$4</span> !<span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span>vzrestore <span class="nv">$VZDUMP</span> <span class="nv">$VZUID</span>
+</span><span class='line'>  pvectl <span class="nb">set</span> <span class="nv">$VZUID</span> --ip_address <span class="nv">$VZIP</span> --netif <span class="nv">ifname</span><span class="o">=</span>eth0,mac<span class="o">=</span><span class="k">$(</span>./macgen.py<span class="k">)</span>,host_ifname<span class="o">=</span>veth<span class="nv">$VZUID</span>.0,host_mac<span class="o">=</span>&lt;host_mac&gt;,bridge<span class="o">=</span>vmbr0 --hostname <span class="nv">$VZHOSTNAME</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;./spread_vz.sh &lt;UID&gt; &lt;HOSTNAME&gt; &lt;IP&gt; &lt;VZDUMP&gt;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /bin/echo <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  /usr/bin/pvectl list
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>run <code>./spread_vz.sh 201 Rslave1 192.168.0.101 vzdump-openvz-200-2012_08_16-13_53_23.tar</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>extracting archive &#39;/root/dump/vzdump-openvz-200-2012_08_16-13_53_23.tar&#39;
+</span><span class='line'>Total bytes read: 960901120 (917MiB, 470MiB/s)
+</span><span class='line'>restore configuration to &#39;/etc/pve/nodes/&lt;cluster1&gt;/openvz/201.conf&#39;
+</span><span class='line'>CT configuration saved to /etc/pve/openvz/201.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>run <code>./spread_vz.sh 202 Rslave2 192.168.0.102 vzdump-openvz-200-2012_08_16-13_53_23.tar</code> for second slave.</p>
+
+<h2>Deploy the slave</h2>
+
+<p>Just open the management console of Proxmox to migrate these new containers to other machines in Proxmox Cluster.</p>
+
+<h2>Validate Environment</h2>
+
+<ul>
+<li>Start all containers.</li>
+<li>Login to Rmaster as ruser.</li>
+<li>Try ssh to Rslave1 and Rslave2 as ruser. It should not require password.</li>
+<li>Check the content of <em>/etc/hosts</em> on all machines.</li>
+<li>Create Rmpi.conf as</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>Rmaster
+</span><span class='line'>Rslave1
+</span><span class='line'>Rslave2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Create Rmpi.test.R as</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>Rmpi.test.R</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>Rmpi<span class="p">)</span>
+</span><span class='line'>cl <span class="o">&lt;-</span> mpi.spawn.Rslaves<span class="p">(</span>nslaves<span class="o">=</span><span class="m">6</span><span class="p">)</span>
+</span><span class='line'>mpi.close.Rslaves<span class="p">()</span>
+</span><span class='line'>mpi.quit<span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>execute <code>mpiexec -np 1 -f Rmpi.conf R --vanilla &lt; Rmpi.test.R</code></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>R version 2.14.1 (2011-12-22)
+</span><span class='line'>Copyright (C) 2011 The R Foundation for Statistical Computing
+</span><span class='line'>ISBN 3-900051-07-0
+</span><span class='line'>Platform: x86_64-pc-linux-gnu (64-bit)
+</span><span class='line'>
+</span><span class='line'>R is free software and comes with ABSOLUTELY NO WARRANTY.
+</span><span class='line'>You are welcome to redistribute it under certain conditions.
+</span><span class='line'>Type &#39;license()&#39; or &#39;licence()&#39; for distribution details.
+</span><span class='line'>
+</span><span class='line'>  Natural language support but running in an English locale
+</span><span class='line'>
+</span><span class='line'>R is a collaborative project with many contributors.
+</span><span class='line'>Type &#39;contributors()&#39; for more information and
+</span><span class='line'>&#39;citation()&#39; on how to cite R or R packages in publications.
+</span><span class='line'>
+</span><span class='line'>Type &#39;demo()&#39; for some demos, &#39;help()&#39; for on-line help, or
+</span><span class='line'>&#39;help.start()&#39; for an HTML browser interface to help.
+</span><span class='line'>Type &#39;q()&#39; to quit R.
+</span><span class='line'>
+</span><span class='line'>&gt; library(Rmpi)
+</span><span class='line'>&gt; cl &lt;- mpi.spawn.Rslaves(nslaves=6)
+</span><span class='line'>        6 slaves are spawned successfully. 0 failed.
+</span><span class='line'>master (rank 0, comm 1) of size 7 is running on: Rmaster
+</span><span class='line'>slave1 (rank 1, comm 1) of size 7 is running on: Rslave1
+</span><span class='line'>slave2 (rank 2, comm 1) of size 7 is running on: Rslave2
+</span><span class='line'>slave3 (rank 3, comm 1) of size 7 is running on: Rmaster
+</span><span class='line'>slave4 (rank 4, comm 1) of size 7 is running on: Rslave1
+</span><span class='line'>slave5 (rank 5, comm 1) of size 7 is running on: Rslave2
+</span><span class='line'>slave6 (rank 6, comm 1) of size 7 is running on: Rmaster
+</span><span class='line'>&gt; mpi.close.Rslaves()
+</span><span class='line'>[1] 1
+</span><span class='line'>&gt; mpi.quit()
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Install Rstudio Server</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>apt-get install libssl0.9.8 libapparmor1 apparmor-utils -y
+</span><span class='line'>wget http://download2.rstudio.org/rstudio-server-0.96.330-amd64.deb
+</span><span class='line'>dpkg -i rstudio-server-0.96.330-amd64.deb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See <a href="http://rstudio.org/download/server">Download RStudio Server</a> for details.</p>
+
+<h2>Set Rmpi in Rstudio Server</h2>
+
+<h3>Configuration</h3>
+
+<p>Create <em>/etc/Rmpi.conf</em></p>
+
+<figure class='code'><figcaption><span>/etc/Rmpi.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>Rmaster
+</span><span class='line'>Rslave1
+</span><span class='line'>Rslave2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Create <em>/usr/lib/rstudio-server/bin/rsession-mpiexec.sh</em>:</p>
+
+<figure class='code'><figcaption><span>/usr/lib/rstudio-server/bin/rsession-mpiexec.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="c">#! /bin/bash</span>
+</span><span class='line'>
+</span><span class='line'>mpiexec -np 1 -f /etc/Rmpi.conf -errfile-pattern /tmp/mpiexec.error.log /usr/lib/rstudio-server/bin/rsession <span class="s2">&quot;$@&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Modify the privilege:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>chmod u+x /usr/lib/rstudio-server/bin/rsession-mpiexec.sh
+</span><span class='line'>chmod g+x /usr/lib/rstudio-server/bin/rsession-mpiexec.sh
+</span><span class='line'>chmod o+x /usr/lib/rstudio-server/bin/rsession-mpiexec.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Create or modify <em>/etc/rstudio/rserver.conf</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>rsession-path=/usr/lib/rstudio-server/bin/rsession-mpiexec.sh
+</span><span class='line'>#rsession-path=/usr/lib/rstudio-server/bin/rsession
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Modify <em>/etc/apparmor.d/rstudio-server</em>:</p>
+
+<figure class='code'><figcaption><span>rstudio-server</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>  #/usr/lib/rstudio-server/bin/rsession ux,
+</span><span class='line'>  /usr/lib/rstudio-server/bin/rsession-mpiexec.sh ux,
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Restart Rstudio Server or restart the Rmaster</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>rstudio-server restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Testing with <em>Rmpi</em></h3>
+
+<p>Login into web interface of Rstudio and execute</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>Rmpi<span class="p">)</span>
+</span><span class='line'>cl <span class="o">&lt;-</span> mpi.spawn.Rslaves<span class="p">(</span>nslaves<span class="o">=</span><span class="m">6</span><span class="p">)</span>
+</span><span class='line'>mpi.close.Rslaves<span class="p">()</span>
+</span><span class='line'>mpi.quit<span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see the slaves are spawned in different container/machines.</p>
+
+<h3>Testing with <em>snow</em></h3>
+
+<p>Login into web interface of Rstudio and execute</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>snow<span class="p">)</span>
+</span><span class='line'>cl <span class="o">&lt;-</span> makeMPIcluster<span class="p">(</span>count <span class="o">=</span> <span class="m">18</span><span class="p">)</span>
+</span><span class='line'>unlist<span class="p">(</span>clusterEvalQ<span class="p">(</span>cl<span class="p">,</span> system<span class="p">(</span><span class="s">&#39;hostname&#39;</span><span class="p">,</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)))</span>
+</span><span class='line'>stopCluster<span class="p">(</span>cl<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see the hostname of slaves.</p>
+
+<h1>Trouble Shooting:</h1>
+
+<ul>
+<li>Check the network environment
+
+<ul>
+<li>Is the <em>/etc/hosts</em> correct?</li>
+<li>Can <em>ruser</em> ssh to slaves and masters without password prompt?</li>
+</ul>
+</li>
+<li>Check logs:
+
+<ul>
+<li>the system log (/var/log/syslog)</li>
+<li>mpiexec error log (/tmp/mpiexec.error.log) which is set in <em>/usr/lib/rstudio-server/bin/rsession-mpiexec.sh</em></li>
+</ul>
+</li>
+</ul>
+
+
+<p>Good Luck!</p>
+
+<h1>Reference</h1>
+
+<ul>
+<li><a href="http://sealmemory.blogspot.tw/2012/05/ubuntu-1204-openmpi-cluster.html">海豹雜記: 使用 Ubuntu Linux 12.04 與 OpenMPI 架設 Cluster</a></li>
+<li><a href="http://webappl.blogspot.tw/2012/01/install-rmpi-with-mpich2-environment.html">Web Application: Install Rmpi with MPICH2 environment</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1826,269 +2489,6 @@ web/內的 bundles
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/09/build-php-development-enviornment/">Php開發建置</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-09T11:23:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/03/09/build-php-development-enviornment/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="#env">環境</a></li>
-<li><a href="#dev-tool">開發工具</a></li>
-<li><a href="#build-env">建置步驟</a>
-
-<ul>
-<li><a href="#IIS-php-fastcgi">安裝IIS7 + php-fastcgi</a></li>
-<li><a href="#eclipse-svn">安裝eclipse-PDT和svn</a></li>
-<li><a href="#import-svn">匯入既有的SVN Repository</a></li>
-<li><a href="#xdebug">安裝Xdebug</a></li>
-<li><a href="#remote-debug">設定遠端除錯環境</a></li>
-<li><a href="#database">設定php和MSSQL的連線</a></li>
-</ul>
-</li>
-<li><a href="#reference">參考網頁</a></li>
-</ul>
-
-
-<h1 id="env">環境</h1>
-
-
-<ul>
-<li>server: windows 2008 R2</li>
-<li>client: windows 7</li>
-<li>database: MSSQL 2008 R2 Express</li>
-</ul>
-
-
-<h1 id="dev-tool">開發工具</h1>
-
-
-<ul>
-<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">eclipse-PDT</a></li>
-<li>svn
-
-<ul>
-<li><a href="http://tortoisesvn.net/downloads.html">tortoise-svn</a></li>
-<li><a href="http://subclipse.tigris.org/">subclipse</a></li>
-</ul>
-</li>
-</ul>
-
-
-<p>ps. 本文件僅測試於IIS7, php5.3.10, eclipse-PDT 3.0.2, subclipse 1.8.x, XDebug 2.1.3</p>
-
-<h1 id="build-env">建置步驟</h1>
-
-
-
-
-<h2 id="IIS-php-fastcgi">安裝IIS7 + php-fastcgi</h2>
-
-
-<ol>
-<li>安裝IIS7
-
-<ul>
-<li>需安裝cgi</li>
-</ul>
-</li>
-<li>安裝<a href="http://windows.php.net/download/">php5.3</a>
-
-<ul>
-<li>下載VC9 x86 Non Thread Safe ZIP</li>
-<li>解壓縮到<em>c:\php</em></li>
-</ul>
-</li>
-<li>安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">Microsoft Visual C++ 2008 Redistributable Package (x86)</a></li>
-<li>測試以下的命令碼：
-
-<pre><code>c:\php\php.exe -i
-</code></pre>
-
-<p>ps. 如出現<em>side-by-side effect</em>的錯誤訊息表示步驟3有問題</p></li>
-<li>設定<em>php.ini</em>：
-
-<ul>
-<li>複製php.ini-development至php.ini</li>
-<li>修改以下內容：
-fastcgi.impersonate = 1
-cgi.fix_pathinfo = 1
-date.timezone = &#8220;Asia/Taipei&#8221;</li>
-</ul>
-</li>
-<li>設定fast-cgi Mapping Handler</li>
-<li>至<em>c:\inetpub\wwwroot</em>建立<em>phpinfo.php</em>並修改內容為:
-
-<pre><code>&lt;?php phpinfo() ?&gt;
-</code></pre></li>
-<li>打開*http://&lt;server的ip>/phpinfo.php須出現phpinfo畫面
-
-<ul>
-<li>如出現500可能是步驟5的<em>date.timezone</em>未設定成功</li>
-</ul>
-</li>
-</ol>
-
-
-<h2 id="eclipse-svn">安裝eclipse-PDT和svn</h2>
-
-
-<ol>
-<li>安裝jre, 雖然我不喜歡Oracle, 但這只是為了方便&#8230; <a href="http://java.com/en/download/manual.jsp">Sun Java</a></li>
-<li>下載eclipse-PDT並解壓縮至<em>c:\eclipse-php</em>
-ps. jre和eclipse-PDT必須同時為x86或x64</li>
-<li>執行<em>c:\eclipse-php\eclipse.exe</em></li>
-<li>安裝subclipse
-
-<ul>
-<li>Help -> Install New Software</li>
-<li>在Work with:欄位輸入<code>http://subclipse.tigris.org/update_1.8.x</code></li>
-<li>勾選Subclipse, SVNKit; 不勾選Subclipse底下的Subclipse Integration for Mylyn 3.x (Optional)</li>
-</ul>
-</li>
-</ol>
-
-
-<h2 id="import-svn">匯入既有的SVN Repository</h2>
-
-
-<ol>
-<li>於eclipse內打開<code>SVN repository Exploring</code> Perspective</li>
-<li>於SVN Repositories內點右鍵, 選New</li>
-<li>輸入svn repository的URL</li>
-</ol>
-
-
-<h2 id="xdebug">安裝XDebug</h2>
-
-
-<ol>
-<li>下載Xdebug Windows Binary(VC9 32bit)</li>
-<li>將下載的.dll複製至<em>c:\php\ext</em></li>
-<li>修改php.ini，新增以下內容
-
-<pre><code>[xdebug]
-zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
-</code></pre></li>
-<li>於命令列輸入<code>c:\php\php.exe -m</code>檢查輸出內有無xdebug</li>
-</ol>
-
-
-<h2 id="remote-debug">設定遠端除錯環境</h2>
-
-
-<ol>
-<li>修改要進行除錯的eclipse設定如下:
-
-<ul>
-<li>開啟PHP專案</li>
-<li>Windows -> Preferences -> PHP -> Debug
-將PHP Debugger從Zend Debugger改成Xdebug後，點選右邊的Configure&#8230;</li>
-<li>於Installed Debuggers內選Xdebug後點右邊的Configure</li>
-<li>Accept remote seesion (JIT) 從 off 改成 any 後點OK</li>
-<li>點Apply</li>
-</ul>
-</li>
-<li>設定要開網頁的瀏覽器(僅以Firefox為例)
-
-<ul>
-<li>安裝<a href="https://addons.mozilla.org/en-US/firefox/addon/58688/">easy Xdebug for FireFox</a></li>
-</ul>
-</li>
-<li>設定php.ini:
-
-<pre><code>[xdebug]
-zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
-xdebug.remote_enable=On
-xdebug.remote_handler="dbgp"
-xdebug.remote_mode="req"
-xdebug.remote_port=9000
-xdebug.remote_host="YOUR.IP.GOES.HERE"
-xdebug.remote_log=/path/to/xdebug_remote_log
-</code></pre></li>
-</ol>
-
-
-<h2 id="database">設定php和MSSQL的連線</h2>
-
-
-<ul>
-<li>下載並安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">VC++ 2008 Redistributable Package(x86)</a></li>
-<li>下載<a href="http://www.microsoft.com/download/en/details.aspx?id=20098#system-requirements">MS Driver 3.0 for SQL Server for PHP</a></li>
-<li>修改php.ini，新增:</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>php.ini</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="c">;...</span>
-</span><span class='line'><span class="na">extension</span><span class="o">=</span><span class="s">c:\php\ext\php_pdo_sqlsrv_53_nts_vc9.dll</span>
-</span><span class='line'><span class="c">;...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>檢查能否讀取</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sh'><span class='line'>c:<span class="se">\p</span>hp<span class="se">\p</span>hp -m
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>看看有無<code>pdo_sqlsrv</code></p>
-
-<ul>
-<li>還要安裝其他相依套件，請參考<a href="http://go.microsoft.com/fwlink/?LinkId=163712"><code>http://go.microsoft.com/fwlink/?LinkId=163712</code></a>。</li>
-</ul>
-
-
-<p>ps. 由於我本來就已經有VC9版本的ODBC Client、pdo_sqlsrv VC9版本，所以我安裝這些版本沒問題，但是在安裝新下載的3.0版本卻問題一堆。等到之後我有和它奮鬥後再把心得Po上來吧。</p>
-
-<h1 id="reference">參考網頁</h1>
-
-
-<ul>
-<li><a href="" title="http://technet.microsoft.com/zh-tw/library/dd239230(v=ws.10).aspx">設定FastCGI以裝載PHP應用程式(IIS7)</a></li>
-<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">Eclipse PDT</a></li>
-<li><a href="http://subclipse.tigris.org/">Subclipse</a></li>
-<li><a href="http://xdebug.org/docs/install">Xdebug Installation</a></li>
-<li><a href="http://xdebug.org/docs/remote">Xdebug Remote Debugging</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2104,6 +2504,10 @@ xdebug.remote_log=/path/to/xdebug_remote_log
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/08/16/proxmox-and-r-cluster/">Proxmox &amp; R cluster</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/08/14/r-closure/">R closure</a>
       </li>
     
@@ -2117,10 +2521,6 @@ xdebug.remote_log=/path/to/xdebug_remote_log
     
       <li class="post">
         <a href="/blog/2012/06/14/profiling-r-code/">Profiling R code</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/14/r-debug/">R debug</a>
       </li>
     
   </ul>

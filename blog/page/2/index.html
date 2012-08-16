@@ -9,12 +9,15 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="概述
-函數心得 取得當前的時間 Sys.time
-Sys.Date 時間格式間的轉換 mktime
-localtime
-gmtime 時間和字串間的轉換 strftime
-strptime trunc 參考資料 概述 R中主要的時間物件為POSIXct和POSIXlt。[Date-Time &hellip;">
+  <meta name="description" content="環境
+開發工具
+建置步驟 安裝IIS7 + php-fastcgi
+安裝eclipse-PDT和svn
+匯入既有的SVN Repository
+安裝Xdebug
+設定遠端除錯環境
+設定php和MSSQL的連線 參考網頁 環境 server: windows 2008 R2
+client: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -113,6 +116,269 @@ strptime trunc 參考資料 概述 R中主要的時間物件為POSIXct和POSIXlt
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/09/build-php-development-enviornment/">Php開發建置</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-09T11:23:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/03/09/build-php-development-enviornment/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="#env">環境</a></li>
+<li><a href="#dev-tool">開發工具</a></li>
+<li><a href="#build-env">建置步驟</a>
+
+<ul>
+<li><a href="#IIS-php-fastcgi">安裝IIS7 + php-fastcgi</a></li>
+<li><a href="#eclipse-svn">安裝eclipse-PDT和svn</a></li>
+<li><a href="#import-svn">匯入既有的SVN Repository</a></li>
+<li><a href="#xdebug">安裝Xdebug</a></li>
+<li><a href="#remote-debug">設定遠端除錯環境</a></li>
+<li><a href="#database">設定php和MSSQL的連線</a></li>
+</ul>
+</li>
+<li><a href="#reference">參考網頁</a></li>
+</ul>
+
+
+<h1 id="env">環境</h1>
+
+
+<ul>
+<li>server: windows 2008 R2</li>
+<li>client: windows 7</li>
+<li>database: MSSQL 2008 R2 Express</li>
+</ul>
+
+
+<h1 id="dev-tool">開發工具</h1>
+
+
+<ul>
+<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">eclipse-PDT</a></li>
+<li>svn
+
+<ul>
+<li><a href="http://tortoisesvn.net/downloads.html">tortoise-svn</a></li>
+<li><a href="http://subclipse.tigris.org/">subclipse</a></li>
+</ul>
+</li>
+</ul>
+
+
+<p>ps. 本文件僅測試於IIS7, php5.3.10, eclipse-PDT 3.0.2, subclipse 1.8.x, XDebug 2.1.3</p>
+
+<h1 id="build-env">建置步驟</h1>
+
+
+
+
+<h2 id="IIS-php-fastcgi">安裝IIS7 + php-fastcgi</h2>
+
+
+<ol>
+<li>安裝IIS7
+
+<ul>
+<li>需安裝cgi</li>
+</ul>
+</li>
+<li>安裝<a href="http://windows.php.net/download/">php5.3</a>
+
+<ul>
+<li>下載VC9 x86 Non Thread Safe ZIP</li>
+<li>解壓縮到<em>c:\php</em></li>
+</ul>
+</li>
+<li>安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">Microsoft Visual C++ 2008 Redistributable Package (x86)</a></li>
+<li>測試以下的命令碼：
+
+<pre><code>c:\php\php.exe -i
+</code></pre>
+
+<p>ps. 如出現<em>side-by-side effect</em>的錯誤訊息表示步驟3有問題</p></li>
+<li>設定<em>php.ini</em>：
+
+<ul>
+<li>複製php.ini-development至php.ini</li>
+<li>修改以下內容：
+fastcgi.impersonate = 1
+cgi.fix_pathinfo = 1
+date.timezone = &#8220;Asia/Taipei&#8221;</li>
+</ul>
+</li>
+<li>設定fast-cgi Mapping Handler</li>
+<li>至<em>c:\inetpub\wwwroot</em>建立<em>phpinfo.php</em>並修改內容為:
+
+<pre><code>&lt;?php phpinfo() ?&gt;
+</code></pre></li>
+<li>打開*http://&lt;server的ip>/phpinfo.php須出現phpinfo畫面
+
+<ul>
+<li>如出現500可能是步驟5的<em>date.timezone</em>未設定成功</li>
+</ul>
+</li>
+</ol>
+
+
+<h2 id="eclipse-svn">安裝eclipse-PDT和svn</h2>
+
+
+<ol>
+<li>安裝jre, 雖然我不喜歡Oracle, 但這只是為了方便&#8230; <a href="http://java.com/en/download/manual.jsp">Sun Java</a></li>
+<li>下載eclipse-PDT並解壓縮至<em>c:\eclipse-php</em>
+ps. jre和eclipse-PDT必須同時為x86或x64</li>
+<li>執行<em>c:\eclipse-php\eclipse.exe</em></li>
+<li>安裝subclipse
+
+<ul>
+<li>Help -> Install New Software</li>
+<li>在Work with:欄位輸入<code>http://subclipse.tigris.org/update_1.8.x</code></li>
+<li>勾選Subclipse, SVNKit; 不勾選Subclipse底下的Subclipse Integration for Mylyn 3.x (Optional)</li>
+</ul>
+</li>
+</ol>
+
+
+<h2 id="import-svn">匯入既有的SVN Repository</h2>
+
+
+<ol>
+<li>於eclipse內打開<code>SVN repository Exploring</code> Perspective</li>
+<li>於SVN Repositories內點右鍵, 選New</li>
+<li>輸入svn repository的URL</li>
+</ol>
+
+
+<h2 id="xdebug">安裝XDebug</h2>
+
+
+<ol>
+<li>下載Xdebug Windows Binary(VC9 32bit)</li>
+<li>將下載的.dll複製至<em>c:\php\ext</em></li>
+<li>修改php.ini，新增以下內容
+
+<pre><code>[xdebug]
+zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
+</code></pre></li>
+<li>於命令列輸入<code>c:\php\php.exe -m</code>檢查輸出內有無xdebug</li>
+</ol>
+
+
+<h2 id="remote-debug">設定遠端除錯環境</h2>
+
+
+<ol>
+<li>修改要進行除錯的eclipse設定如下:
+
+<ul>
+<li>開啟PHP專案</li>
+<li>Windows -> Preferences -> PHP -> Debug
+將PHP Debugger從Zend Debugger改成Xdebug後，點選右邊的Configure&#8230;</li>
+<li>於Installed Debuggers內選Xdebug後點右邊的Configure</li>
+<li>Accept remote seesion (JIT) 從 off 改成 any 後點OK</li>
+<li>點Apply</li>
+</ul>
+</li>
+<li>設定要開網頁的瀏覽器(僅以Firefox為例)
+
+<ul>
+<li>安裝<a href="https://addons.mozilla.org/en-US/firefox/addon/58688/">easy Xdebug for FireFox</a></li>
+</ul>
+</li>
+<li>設定php.ini:
+
+<pre><code>[xdebug]
+zend_extension=c:\php\ext\php_xdebug-2.1.3-5.3-vc9-nts.dll
+xdebug.remote_enable=On
+xdebug.remote_handler="dbgp"
+xdebug.remote_mode="req"
+xdebug.remote_port=9000
+xdebug.remote_host="YOUR.IP.GOES.HERE"
+xdebug.remote_log=/path/to/xdebug_remote_log
+</code></pre></li>
+</ol>
+
+
+<h2 id="database">設定php和MSSQL的連線</h2>
+
+
+<ul>
+<li>下載並安裝<a href="http://www.microsoft.com/download/en/details.aspx?id=29">VC++ 2008 Redistributable Package(x86)</a></li>
+<li>下載<a href="http://www.microsoft.com/download/en/details.aspx?id=20098#system-requirements">MS Driver 3.0 for SQL Server for PHP</a></li>
+<li>修改php.ini，新增:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>php.ini</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="c">;...</span>
+</span><span class='line'><span class="na">extension</span><span class="o">=</span><span class="s">c:\php\ext\php_pdo_sqlsrv_53_nts_vc9.dll</span>
+</span><span class='line'><span class="c">;...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>檢查能否讀取</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>c:<span class="se">\p</span>hp<span class="se">\p</span>hp -m
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>看看有無<code>pdo_sqlsrv</code></p>
+
+<ul>
+<li>還要安裝其他相依套件，請參考<a href="http://go.microsoft.com/fwlink/?LinkId=163712"><code>http://go.microsoft.com/fwlink/?LinkId=163712</code></a>。</li>
+</ul>
+
+
+<p>ps. 由於我本來就已經有VC9版本的ODBC Client、pdo_sqlsrv VC9版本，所以我安裝這些版本沒問題，但是在安裝新下載的3.0版本卻問題一堆。等到之後我有和它奮鬥後再把心得Po上來吧。</p>
+
+<h1 id="reference">參考網頁</h1>
+
+
+<ul>
+<li><a href="" title="http://technet.microsoft.com/zh-tw/library/dd239230(v=ws.10).aspx">設定FastCGI以裝載PHP應用程式(IIS7)</a></li>
+<li><a href="http://www.eclipse.org/projects/project.php?id=tools.pdt">Eclipse PDT</a></li>
+<li><a href="http://subclipse.tigris.org/">Subclipse</a></li>
+<li><a href="http://xdebug.org/docs/install">Xdebug Installation</a></li>
+<li><a href="http://xdebug.org/docs/remote">Xdebug Remote Debugging</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -498,6 +764,10 @@ Windows的使用者請額外安裝能編譯R的工具庫: <a href="http://cran.r
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/08/16/proxmox-and-r-cluster/">Proxmox &amp; R cluster</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/08/14/r-closure/">R closure</a>
       </li>
     
@@ -511,10 +781,6 @@ Windows的使用者請額外安裝能編譯R的工具庫: <a href="http://cran.r
     
       <li class="post">
         <a href="/blog/2012/06/14/profiling-r-code/">Profiling R code</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/14/r-debug/">R debug</a>
       </li>
     
   </ul>
