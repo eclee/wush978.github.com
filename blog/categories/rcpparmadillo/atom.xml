@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: RcppArmadillo | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/rcpparmadillo/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-08-21T20:49:07+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RcppArmadillo]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/21/rcpparmadillo/"/>
+    <updated>2012-08-21T20:08:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/21/rcpparmadillo</id>
+    <content type="html"><![CDATA[<h1>Inroduction</h1>
+
+<p>Recently I am exploring the linear algebra features provided in <a href="http://arma.sourceforge.net/">Armadillo</a> through <a href="http://dirk.eddelbuettel.com/code/rcpp.armadillo.html">RcppArmadillo</a>.</p>
+
+<p>Here is the note for myself.</p>
+
+<p>Note these functions are only my understanding of these operators and methods. I didn't check the source code of Armadillo and RcppArmadillo.</p>
+
+<h1>Feature</h1>
+
+<h2>Matrix Multiplication</h2>
+
+<p><code>cpp Matrix Multiplication
+const arma::mat operator*(const arma::mat&amp; x, const arma::mat&amp; y);
+</code></p>
+
+<h2>Transpose</h2>
+
+<p>``` cpp Transpose
+const arma::mat arma::trans(const arma::mat&amp; x);</p>
+
+<p>// Methods of class arma::mat
+// x.t() = arma::trans(x)
+const arma::mat arma::mat::t();
+```</p>
+
+<h2>Inverse</h2>
+
+<p><code>cpp Inverse
+const arma::mat arma::pinv(const arma::mat&amp; x);
+</code></p>
+
+<h2>Sum of Square</h2>
+
+<p>``` cpp Sum of Square
+inline double sumOfSquare(arma::vec&amp; x) {</p>
+
+<pre><code>return std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Diagonal Vector</h2>
+
+<p><code>cpp Diagonal Vector
+const arma::colvec arma::diagvec(const arma::mat&amp; x);
+</code></p>
+
+<h2>Linear Regression</h2>
+
+<p>``` cpp Linear Regression
+/<em>*
+ * @param X    the explanatory variables
+ * @param y    the response variable
+ * @return     the vector of regression coefficients
+ </em>/
+const arma::colvec arma::solve(const arma::mat&amp; X, const arma::vec&amp; y);</p>
+
+<p>// Residuals
+arma::colvec residuals = y - X * coef;</p>
+
+<p>// Residual Sum of Square
+double s2 = sumOfSquare(residuals);</p>
+
+<p>// Std of Coef.
+arma::colvec sderr = arma::sqrt(s2 *</p>
+
+<pre><code>arma::diagvec(arma::pinv(arma::trans(X)*X)));
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

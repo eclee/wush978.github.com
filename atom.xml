@@ -4,7 +4,7 @@
   <title><![CDATA[Wush筆記]]></title>
   <link href="http://wush978.github.com/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-08-16T16:11:06+08:00</updated>
+  <updated>2012-08-21T20:49:07+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,109 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[RcppArmadillo]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/21/rcpparmadillo/"/>
+    <updated>2012-08-21T20:08:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/21/rcpparmadillo</id>
+    <content type="html"><![CDATA[<h1>Inroduction</h1>
+
+<p>Recently I am exploring the linear algebra features provided in <a href="http://arma.sourceforge.net/">Armadillo</a> through <a href="http://dirk.eddelbuettel.com/code/rcpp.armadillo.html">RcppArmadillo</a>.</p>
+
+<p>Here is the note for myself.</p>
+
+<p>Note these functions are only my understanding of these operators and methods. I didn&#8217;t check the source code of Armadillo and RcppArmadillo.</p>
+
+<h1>Feature</h1>
+
+<h2>Matrix Multiplication</h2>
+
+<figure class='code'><figcaption><span>Matrix Multiplication</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="k">operator</span><span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">y</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Transpose</h2>
+
+<figure class='code'><figcaption><span>Transpose</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">trans</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Methods of class arma::mat</span>
+</span><span class='line'><span class="c1">// x.t() = arma::trans(x)</span>
+</span><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">::</span><span class="n">t</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inverse</h2>
+
+<figure class='code'><figcaption><span>Inverse</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">pinv</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Sum of Square</h2>
+
+<figure class='code'><figcaption><span>Sum of Square</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kr">inline</span> <span class="kt">double</span> <span class="n">sumOfSquare</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">vec</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">inner_product</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">x</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">x</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Diagonal Vector</h2>
+
+<figure class='code'><figcaption><span>Diagonal Vector</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">arma</span><span class="o">::</span><span class="n">diagvec</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Linear Regression</h2>
+
+<figure class='code'><figcaption><span>Linear Regression</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * @param X    the explanatory variables</span>
+</span><span class='line'><span class="cm"> * @param y    the response variable</span>
+</span><span class='line'><span class="cm"> * @return     the vector of regression coefficients</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">arma</span><span class="o">::</span><span class="n">solve</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">X</span><span class="p">,</span> <span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">vec</span><span class="o">&amp;</span> <span class="n">y</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Residuals</span>
+</span><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">residuals</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">*</span> <span class="n">coef</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Residual Sum of Square</span>
+</span><span class='line'><span class="kt">double</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">sumOfSquare</span><span class="p">(</span><span class="n">residuals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Std of Coef.</span>
+</span><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">sderr</span> <span class="o">=</span> <span class="n">arma</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s2</span> <span class="o">*</span>
+</span><span class='line'>  <span class="n">arma</span><span class="o">::</span><span class="n">diagvec</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">pinv</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">trans</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">*</span><span class="n">X</span><span class="p">)));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Proxmox &amp; R cluster]]></title>
