@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-08-21T20:49:07+08:00</updated>
+  <updated>2012-08-22T17:31:24+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -25,6 +25,22 @@
 <p>Here is the note for myself.</p>
 
 <p>Note these functions are only my understanding of these operators and methods. I didn't check the source code of Armadillo and RcppArmadillo.</p>
+
+<h1>Basic Elements and Methods</h1>
+
+<p>``` cpp mat
+arma::mat a(5, 5); // Initialize a 5 x 5 matrix.</p>
+
+<p>a.fill(0); // fill it with 0
+a.n_rows;    //!&lt; number of rows in the matrix (read-only)
+a.n_cols;    //!&lt; number of columns in the matrix (read-only)
+a.n_elem;    //!&lt; number of elements in the matrix (read-only)
+a.vec_state; //!&lt; 0: matrix layout; 1: column vector layout; 2: row vector layout
+a.mem;       //!&lt; pointer to memory used by the matrix (memory is read-only)</p>
+
+<p>a.min();
+a.max();
+```</p>
 
 <h1>Feature</h1>
 

@@ -144,6 +144,33 @@
 
 <p>Note these functions are only my understanding of these operators and methods. I didn&#8217;t check the source code of Armadillo and RcppArmadillo.</p>
 
+<h1>Basic Elements and Methods</h1>
+
+<figure class='code'><figcaption><span>mat</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// Initialize a 5 x 5 matrix.</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// fill it with 0</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_rows</span><span class="p">;</span>    <span class="c1">//!&lt; number of rows in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_cols</span><span class="p">;</span>    <span class="c1">//!&lt; number of columns in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_elem</span><span class="p">;</span>    <span class="c1">//!&lt; number of elements in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">vec_state</span><span class="p">;</span> <span class="c1">//!&lt; 0: matrix layout; 1: column vector layout; 2: row vector layout</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">mem</span><span class="p">;</span>         <span class="c1">//!&lt; pointer to memory used by the matrix (memory is read-only)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">min</span><span class="p">();</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">max</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 <h1>Feature</h1>
 
 <h2>Matrix Multiplication</h2>
