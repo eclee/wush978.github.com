@@ -56,14 +56,28 @@
     </url>
     <url>
         <loc>http://wush978.github.com/blog/2012/08/21/rcpparmadillo/</loc>
-        <lastmod>2012-08-22T17:30:41+08:00</lastmod>
+        <lastmod>2012-08-30T13:47:33+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://wush978.github.com/blog/2012/08/24/pros-and-cons-of-virtualized-system/</loc>
+        <lastmod>2012-08-24T11:13:58+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/
+        </loc>
+        <lastmod>2012-08-30T13:40:27+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://wush978.github.com/blog/2012/08/30/initialize-postgresql/</loc>
+        <lastmod>2012-08-30T13:46:09+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/blog/archives/</loc>
-        <lastmod>2012-08-22T17:30:41+08:00</lastmod>
+        <lastmod>2012-08-30T13:47:33+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/</loc>
-        <lastmod>2012-08-22T17:30:41+08:00</lastmod>
+        <lastmod>2012-08-30T13:47:33+08:00</lastmod>
     </url>
 </urlset>

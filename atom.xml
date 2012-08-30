@@ -4,7 +4,7 @@
   <title><![CDATA[Wush筆記]]></title>
   <link href="http://wush978.github.com/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-08-22T17:31:24+08:00</updated>
+  <updated>2012-08-30T13:48:04+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,476 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Initialize PostgreSQL in Ubuntu 12.04]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/30/initialize-postgresql/"/>
+    <updated>2012-08-30T13:41:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/30/initialize-postgresql</id>
+    <content type="html"><![CDATA[<h1>Install</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install postgresql
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Configure</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo -u postgres createuser -D -P ruser
+</span><span class='line'>sudo -u postgres createdb -O ruser ruserdb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Edit <code>/etc/postgresql/9.1/main/pg_hba.conf</code>.</p>
+
+<p>Change this line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nb">local   </span>all             all                                     peer
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nb">local   </span>all             all                                     md5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Restart service:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo service postgresql restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Reference</h1>
+
+<ul>
+<li><a href="http://blog.deliciousrobots.com/2011/12/13/get-postgres-working-on-ubuntu-or-linux-mint/">GET POSTGRES WORKING ON UBUNTU OR LINUX MINT</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Benchmark of Saving and Loading R Objects]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/"/>
+    <updated>2012-08-30T12:48:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects</id>
+    <content type="html"><![CDATA[<h1>Introduction</h1>
+
+<p>To compare the speed of saving and loading R objects to and from MongoDB
+with or without serialization.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>OpenVZ with Ubuntu 12.04, i7-2600 CPU @ 3.4GHz, 2 processors, 4G RAM</li>
+<li>Local MongoDB</li>
+<li>Local PostgreSQL</li>
+<li>R 1.14.1</li>
+<li>rmongodb 1.0.3</li>
+<li>RPostgreSQL 0.3-2</li>
+</ul>
+
+
+<h1>Initialize</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install mongodb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>R</h2>
+
+<figure class='code'><figcaption><span>install libpq-dev</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install libpq-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>install R packages</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>install.packages<span class="p">(</span><span class="s">&quot;rmongodb&quot;</span><span class="p">)</span>
+</span><span class='line'>install.packages<span class="p">(</span><span class="s">&quot;RPostgreSQL&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Benchmark</h1>
+
+<figure class='code'><figcaption><span>Test saving object serialized or not</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="p">{</span> <span class="c1"># loading package</span>
+</span><span class='line'>  library<span class="p">(</span>rmongodb<span class="p">)</span>
+</span><span class='line'>  mongo <span class="o">&lt;-</span> mongo.create<span class="p">()</span>
+</span><span class='line'>  <span class="kr">if</span> <span class="p">(</span>!mongo.is.connected<span class="p">(</span>mongo<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    stop<span class="p">(</span><span class="s">&quot;disconnected&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>save1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">for</span><span class="p">(</span>i in <span class="m">1</span>:repeat.time<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    b <span class="o">&lt;-</span> mongo.bson.from.list<span class="p">(</span>list<span class="p">(</span>Rdata <span class="o">=</span> a<span class="p">))</span>
+</span><span class='line'>    mongo.insert<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save1&quot;</span><span class="p">,</span> b<span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>load1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  result <span class="o">&lt;-</span> list<span class="p">()</span>
+</span><span class='line'>  length<span class="p">(</span>result<span class="p">)</span> <span class="o">&lt;-</span> repeat.time
+</span><span class='line'>  cursor <span class="o">&lt;-</span> mongo.find<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save1&quot;</span><span class="p">)</span>
+</span><span class='line'>  index <span class="o">&lt;-</span> <span class="m">1</span>
+</span><span class='line'>  <span class="kr">while</span><span class="p">(</span>mongo.cursor.next<span class="p">(</span>cursor<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    result<span class="p">[[</span>index<span class="p">]]</span> <span class="o">&lt;-</span> mongo.bson.to.list<span class="p">(</span>mongo.cursor.value<span class="p">(</span>cursor<span class="p">))</span>
+</span><span class='line'>    index <span class="o">&lt;-</span> index <span class="o">+</span> <span class="m">1</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  result
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>save2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">for</span><span class="p">(</span>i in <span class="m">1</span>:repeat.time<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    buf <span class="o">&lt;-</span> mongo.bson.buffer.create<span class="p">()</span>
+</span><span class='line'>    mongo.bson.buffer.append<span class="p">(</span>buf<span class="p">,</span> <span class="s">&quot;Rdata&quot;</span><span class="p">,</span> serialize<span class="p">(</span>a<span class="p">,</span> <span class="kc">NULL</span><span class="p">,</span> <span class="kc">FALSE</span><span class="p">))</span>
+</span><span class='line'>    mongo.insert<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save2&quot;</span><span class="p">,</span> mongo.bson.from.buffer<span class="p">(</span>buf<span class="p">))</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>load2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  result <span class="o">&lt;-</span> list<span class="p">()</span>
+</span><span class='line'>  length<span class="p">(</span>result<span class="p">)</span> <span class="o">&lt;-</span> repeat.time
+</span><span class='line'>  cursor <span class="o">&lt;-</span> mongo.find<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save2&quot;</span><span class="p">)</span>
+</span><span class='line'>  index <span class="o">&lt;-</span> <span class="m">1</span>
+</span><span class='line'>  <span class="kr">while</span><span class="p">(</span>mongo.cursor.next<span class="p">(</span>cursor<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    result<span class="p">[[</span>index<span class="p">]]</span> <span class="o">&lt;-</span> unserialize<span class="p">(</span>mongo.bson.value<span class="p">(</span>mongo.cursor.value<span class="p">(</span>cursor<span class="p">),</span> <span class="s">&quot;Rdata&quot;</span><span class="p">))</span>
+</span><span class='line'>    index <span class="o">&lt;-</span> index <span class="o">+</span> <span class="m">1</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  result
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>repeat.time <span class="o">&lt;-</span> <span class="m">1000</span>
+</span><span class='line'>mongo.drop.database<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">)</span>
+</span><span class='line'>a <span class="o">&lt;-</span> matrix<span class="p">(</span>rnorm<span class="p">(</span><span class="m">100</span><span class="o">^</span><span class="m">2</span><span class="p">),</span> <span class="m">100</span><span class="p">,</span> <span class="m">100</span><span class="p">)</span>
+</span><span class='line'>system.time<span class="p">({</span> <span class="c1">#direct way</span>
+</span><span class='line'>  print<span class="p">(</span><span class="s">&quot;directly save and load&quot;</span><span class="p">)</span>
+</span><span class='line'>  save1<span class="p">(</span>a<span class="p">)</span>
+</span><span class='line'>  a.result <span class="o">&lt;-</span> load1<span class="p">()</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>system.time<span class="p">({</span> <span class="c1">#serialized way</span>
+</span><span class='line'>  print<span class="p">(</span><span class="s">&quot;serialized before save and load&quot;</span><span class="p">)</span>
+</span><span class='line'>  save2<span class="p">(</span>a<span class="p">)</span>
+</span><span class='line'>  a.result2 <span class="o">&lt;-</span> load2<span class="p">()</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I tested many times and notice that the results are very unstable, and
+I guess that the serialized way is faster a little bit.</p>
+
+<p>I paste some results here:</p>
+
+<figure class='code'><figcaption><span>Test saving object serialized or not</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.226</span>   <span class="m">0.083</span>   <span class="m">4.221</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.746</span>   <span class="m">0.095</span>   <span class="m">3.578</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.227</span>   <span class="m">0.090</span>   <span class="m">3.981</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.771</span>   <span class="m">0.106</span>   <span class="m">3.327</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.232</span>   <span class="m">0.104</span>   <span class="m">3.808</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.760</span>   <span class="m">0.110</span>   <span class="m">3.289</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.303</span>   <span class="m">0.078</span>   <span class="m">3.827</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.763</span>   <span class="m">0.109</span>   <span class="m">3.413</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.237</span>   <span class="m">0.089</span>   <span class="m">3.834</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.773</span>   <span class="m">0.091</span>   <span class="m">3.458</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.247</span>   <span class="m">0.114</span>   <span class="m">3.970</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.781</span>   <span class="m">0.110</span>   <span class="m">3.738</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.331</span>   <span class="m">0.142</span>   <span class="m">4.329</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.753</span>   <span class="m">0.098</span>   <span class="m">3.202</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.217</span>   <span class="m">0.090</span>   <span class="m">3.766</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.737</span>   <span class="m">0.097</span>   <span class="m">5.339</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.231</span>   <span class="m">0.103</span>   <span class="m">3.875</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.751</span>   <span class="m">0.105</span>   <span class="m">3.377</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.202</span>   <span class="m">0.085</span>   <span class="m">6.935</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.752</span>   <span class="m">0.082</span>   <span class="m">3.996</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[我喜歡使用虛擬化系統]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/24/pros-and-cons-of-virtualized-system/"/>
+    <updated>2012-08-24T11:01:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/24/pros-and-cons-of-virtualized-system</id>
+    <content type="html"><![CDATA[<p>之前我因為工作的關係, 需要使用虛擬化系統來跑測試。</p>
+
+<p>這陣子在架了Proxmox的Virtualization Cluster後覺得這種系統在跑科學模擬上真是太方便，理由如下：</p>
+
+<ul>
+<li>環境管理: 我可以對整台機器的環境進行備份、還原和複製。</li>
+<li>穩定: 虛擬機器內再怎麼當機怎麼毀滅, 幾乎不會影響到整台機器。所以我不用跑到實驗室去重開，頂多進入Proxmox主控台去重開虛擬機器即可。</li>
+</ul>
+
+
+<p>而使用Proxmox的理由則是：</p>
+
+<ul>
+<li>Free</li>
+<li>我熟悉ubuntu/debian system</li>
+</ul>
+
+
+<p>當然這樣做也是有一些缺點：</p>
+
+<ul>
+<li>學習曲線: 我發現在這種東西的學習上, 我似乎比一般人還敏感一點, 所以我可以接受比較陡峭的學習曲線。</li>
+<li>效能: 這點我還沒有空去實際測試。但是虛擬機器正常來說效能是會比較慢的。以目前我的經驗是，使用OpenVZ的虛擬化技術上並沒有感受到特別的效能損失。</li>
+</ul>
+
+
+<p>有興趣或有類似需求或的朋友可以參考看看</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RcppArmadillo]]></title>

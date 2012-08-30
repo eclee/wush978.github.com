@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2012-08-22T17:31:24+08:00</updated>
+  <updated>2012-08-30T13:48:04+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,235 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Benchmark of Saving and Loading R Objects]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/"/>
+    <updated>2012-08-30T12:48:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects</id>
+    <content type="html"><![CDATA[<h1>Introduction</h1>
+
+<p>To compare the speed of saving and loading R objects to and from MongoDB
+with or without serialization.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>OpenVZ with Ubuntu 12.04, i7-2600 CPU @ 3.4GHz, 2 processors, 4G RAM</li>
+<li>Local MongoDB</li>
+<li>Local PostgreSQL</li>
+<li>R 1.14.1</li>
+<li>rmongodb 1.0.3</li>
+<li>RPostgreSQL 0.3-2</li>
+</ul>
+
+
+<h1>Initialize</h1>
+
+<p><code>sh
+sudo apt-get install mongodb
+</code></p>
+
+<h2>R</h2>
+
+<p><code>sh install libpq-dev
+sudo apt-get install libpq-dev
+</code></p>
+
+<p><code>r install R packages
+install.packages("rmongodb")
+install.packages("RPostgreSQL")
+</code></p>
+
+<h1>Benchmark</h1>
+
+<p>```r Test saving object serialized or not
+{ # loading package
+  library(rmongodb)
+  mongo &lt;- mongo.create()
+  if (!mongo.is.connected(mongo)) {</p>
+
+<pre><code>stop("disconnected")
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>save1 &lt;- function(a) {
+  for(i in 1:repeat.time) {</p>
+
+<pre><code>b &lt;- mongo.bson.from.list(list(Rdata = a))  
+mongo.insert(mongo, "test.save1", b)
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>load1 &lt;- function() {
+  result &lt;- list()
+  length(result) &lt;- repeat.time
+  cursor &lt;- mongo.find(mongo, "test.save1")
+  index &lt;- 1
+  while(mongo.cursor.next(cursor)) {</p>
+
+<pre><code>result[[index]] &lt;- mongo.bson.to.list(mongo.cursor.value(cursor))
+index &lt;- index + 1
+</code></pre>
+
+<p>  }
+  result
+}</p>
+
+<p>save2 &lt;- function(a) {
+  for(i in 1:repeat.time) {</p>
+
+<pre><code>buf &lt;- mongo.bson.buffer.create()
+mongo.bson.buffer.append(buf, "Rdata", serialize(a, NULL, FALSE))
+mongo.insert(mongo, "test.save2", mongo.bson.from.buffer(buf))
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>load2 &lt;- function() {
+  result &lt;- list()
+  length(result) &lt;- repeat.time
+  cursor &lt;- mongo.find(mongo, "test.save2")
+  index &lt;- 1
+  while(mongo.cursor.next(cursor)) {</p>
+
+<pre><code>result[[index]] &lt;- unserialize(mongo.bson.value(mongo.cursor.value(cursor), "Rdata"))
+index &lt;- index + 1
+</code></pre>
+
+<p>  }
+  result
+}</p>
+
+<p>repeat.time &lt;- 1000
+mongo.drop.database(mongo, "test")
+a &lt;- matrix(rnorm(100<sup>2),</sup> 100, 100)
+system.time({ #direct way
+  print("directly save and load")
+  save1(a)
+  a.result &lt;- load1()
+})
+system.time({ #serialized way
+  print("serialized before save and load")
+  save2(a)
+  a.result2 &lt;- load2()
+})
+```</p>
+
+<p>I tested many times and notice that the results are very unstable, and
+I guess that the serialized way is faster a little bit.</p>
+
+<p>I paste some results here:</p>
+
+<p>```
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.226   0.083   4.221
+[1] "serialized before save and load"
+   user  system elapsed
+  0.746   0.095   3.578
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.227   0.090   3.981
+[1] "serialized before save and load"
+   user  system elapsed
+  0.771   0.106   3.327
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.232   0.104   3.808
+[1] "serialized before save and load"
+   user  system elapsed
+  0.760   0.110   3.289
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.303   0.078   3.827
+[1] "serialized before save and load"
+   user  system elapsed
+  0.763   0.109   3.413
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.237   0.089   3.834
+[1] "serialized before save and load"
+   user  system elapsed
+  0.773   0.091   3.458
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.247   0.114   3.970
+[1] "serialized before save and load"
+   user  system elapsed
+  0.781   0.110   3.738
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.331   0.142   4.329
+[1] "serialized before save and load"
+   user  system elapsed
+  0.753   0.098   3.202
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.217   0.090   3.766
+[1] "serialized before save and load"
+   user  system elapsed
+  0.737   0.097   5.339
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.231   0.103   3.875
+[1] "serialized before save and load"
+   user  system elapsed
+  0.751   0.105   3.377
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.202   0.085   6.935
+[1] "serialized before save and load"
+   user  system elapsed
+  0.752   0.082   3.996
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RcppArmadillo]]></title>
@@ -832,293 +1061,6 @@ Self seconds: time spent in function alone.
 <li><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[R debug]]></title>
-    <link href="http://wush978.github.com/blog/2012/06/14/r-debug/"/>
-    <updated>2012-06-14T01:11:00+08:00</updated>
-    <id>http://wush978.github.com/blog/2012/06/14/r-debug</id>
-    <content type="html"><![CDATA[<h1>簡介</h1>
-
-<p>很少人能夠第一次寫程式就能寫對，就連最專業的程式設計師也會花大把大把的時間在除錯。
-所以熟悉除錯的工具也是能夠顯著的提昇寫程式的效率。</p>
-
-<p>其實作者我在寫這篇文章之前也完全沒用過除錯工具！想到又能提昇自己的coding效率又讓我熊熊的燃燒起來！！</p>
-
-<h1>除錯函數</h1>
-
-<p>R 提供了以下的除錯功能:</p>
-
-<ul>
-<li><code>traceback</code></li>
-<li><code>browser</code></li>
-<li><code>debug</code></li>
-<li><code>trace</code></li>
-</ul>
-
-
-<p>就讓我來一個個探索吧！</p>
-
-<h2>traceback</h2>
-
-<p>所謂的traceback功能主要的目的，是找出錯誤發生時最後執行的函數：</p>
-
-<p>``` r traceback-example-1
-fail_func1 &lt;- function(size) {</p>
-
-<pre><code>b &lt;- 5
-b &lt;- b + size
-b &lt;- b * 2
-b &lt;- b^2
-b
-</code></pre>
-
-<p>}
-fail_func2 &lt;- function(size) {</p>
-
-<pre><code>b &lt;- fail_func1(size)
-a &lt;- sample(0:1,size,FALSE)
-a
-</code></pre>
-
-<p>}
-fail_func2(12)
-traceback()
-fail_func2('test')
-traceback()
-```</p>
-
-<p>運行結果：</p>
-
-<p>``` rconsole traceback-example-1-output</p>
-
-<blockquote><p>fail_func2(12)
-Error in sample(0:1, size, FALSE) :
-  cannot take a sample larger than the population when 'replace = FALSE'
-traceback()
-2: sample(0:1, size, FALSE) at #3
-1: fail_func2(12)
-fail_func2('test')
-Error in b + size : non-numeric argument to binary operator
-traceback()
-2: fail_func1(size) at #2
-1: fail_func2("test")</p>
-
-<p>```</p></blockquote>
-
-<p>可以看出traceback確實的找出最後一個丟出錯誤的函數。</p>
-
-<h2>browser</h2>
-
-<p>traceback只能指出錯誤的發生處，並不能幫助使用者找出程式的錯誤。
-接下來的<code>browser</code>指令則提供互動式的除錯功能：</p>
-
-<ul>
-<li>暫停程式碼的執行</li>
-<li>讓使用者能察看某個時間點的變數狀態，甚至是修改變數狀態。此時以下的指令變成有特殊意義：
-
-<ul>
-<li><code>c</code> 讓程式繼續進行</li>
-<li><code>n</code> 執行下一行</li>
-<li><code>Q</code> 中斷</li>
-</ul>
-</li>
-<li>繼續執行</li>
-</ul>
-
-
-<p>ps. 如果在中斷期間要查詢名稱為<code>c</code>、<code>n</code>、<code>Q</code>的變數內容，請用<code>print</code>指令。
-但是我個人是認為不應該把變數取這類名稱！！</p>
-
-<p>如果運行以下的指令：</p>
-
-<p><code>r browser-example-1
-global_env &lt;- 1
-fail_func1 &lt;- function(size) {
-  fail_func1_env &lt;- 5
-  browser()
-  fail_func1_env &lt;- 6
-  fail_func1_env &lt;- 7
-  fail_func1_env
-}
-fail_func2 &lt;- function(size) {
-  fail_func2_env &lt;- 1
-  b &lt;- fail_func1(size)
-  a &lt;- sample(0:1,size,FALSE)
-  a
-}
-fail_func2(12)
-</code></p>
-
-<p>應該會看到類似以下的結果：</p>
-
-<p>``` rconsole browser-example-1-output</p>
-
-<blockquote><p>fail_func2(12)
-Called from: fail_func1(size)
-Browse[1]> global_env
-[1] 1
-Browse[1]> fail_func1_env
-[1] 5
-Browse[1]> fail_func2_env
-Error: object 'fail_func2_env' not found
-Browse[1]> size
-[1] 12
-Browse[1]> n
-debug at #4: fail_func1_env <- 6
-Browse[2]> fail_func1_env
-[1] 5
-Browse[2]> n
-debug at #5: fail_func1_env <- 7
-Browse[2]> fail_func1_env
-[1] 6
-Browse[2]> n
-debug at #6: fail_func1_env
-Browse[2]> fail_func1_env
-[1] 7
-```</p></blockquote>
-
-<p>在程式跑到<code>browser</code>時就暫停了。
-因為<code>browser</code>是插入在<code>fail_func1</code>的第二行，所以變數應該和該時間點相同，
-值得注意的是此時也只能存取該function environment內的變數</p>
-
-<h2>debug</h2>
-
-<p>我們可以把上一節的<code>browser</code>視為一種<em>中斷點</em>，
-而<code>debug</code>函數則可以幫一個函數的每一行加入中斷點。
-在對內建函數除錯的時候非常有用：</p>
-
-<p><code>r debug-example-1
-debug(lm)
-lm(Sepal.Length~Species,iris)
-</code></p>
-
-<p>``` rconsole debug-example-1-output</p>
-
-<blockquote><p>lm(Sepal.Length~Species,iris)
-debugging in: lm(Sepal.Length ~ Species, iris)
-debug: {</p>
-
-<pre><code>ret.x &lt;- x
-ret.y &lt;- y
-</code></pre>
-
-<p>... 略 ...</p>
-
-<pre><code>z
-</code></pre>
-
-<p>}
-Browse[2]> n
-debug: ret.x <- x
-Browse[2]> n
-debug: ret.y <- y
-Browse[2]> n
-debug: cl &lt;- match.call()
-```</p></blockquote>
-
-<p>除錯完畢後可用<code>undebug</code>來將中斷點移除。</p>
-
-<h2>trace</h2>
-
-<p>有時候只是檢視或修改變數並不夠。
-<code>trace</code>函數能在除錯時插入程式碼到某個函數，
-並在<code>untrace</code>後還原該函數。</p>
-
-<p>``` rconsole str(trace)</p>
-
-<blockquote><p>str(trace)
-function (what, tracer, exit, at, print, signature, where = topenv(parent.frame()),</p>
-
-<pre><code>edit = FALSE)  
-</code></pre>
-
-<p>```</p></blockquote>
-
-<ul>
-<li><code>what</code>: 要修改的函數名稱</li>
-<li><code>tracer</code>: 要插入的函數或expression。<code>trace</code>會在<code>at</code>給的行數之前執行，或是<code>what</code>開始之前執行。</li>
-<li><code>exit</code>: 當<code>what</code>結束之後執行的函數或expression</li>
-<li><code>at</code>: <code>trace</code>執行的行數。</li>
-</ul>
-
-
-<p>其他的參數請參閱trace的說明。</p>
-
-<p>測試一下：
-<code>r trace-example-1
-test_func &lt;- function() {
-  a &lt;- 1
-  a &lt;- 2
-  a &lt;- 3
-}
-trace(test_func, browser, browser)
-test_func()
-</code></p>
-
-<p>``` rconsole trace-example-1-output</p>
-
-<blockquote><p>test_func()
-Tracing test_func() on entry
-Called from: eval(expr, envir, enclos)
-Browse[1]> a
-Error: object 'a' not found
-Browse[1]> c
-Tracing test_func() on exit
-Called from: eval(expr, envir, enclos)
-Browse[1]> a
-[1] 3
-Browse[1]> c</p>
-
-<p>```</p></blockquote>
-
-<p>可以看到第一次browser是在執行test_func之前，所以<code>a</code>不存在。
-第二次則是離開的時候，所以<code>a</code>為<code>3</code>。</p>
-
-<p><code>r trace-example-2
-test_func &lt;- function() {
-  a &lt;- 1
-  a &lt;- 2
-  a &lt;- 3
-}
-trace(test_func, quote(print(a)), at=3:4) #利用quote直接插入print(a)到程式中
-body(test_func)
-test_func()
-</code></p>
-
-<p>``` rconsole trace-example-2-output</p>
-
-<blockquote><p>body(test_func)
-{</p>
-
-<pre><code>a &lt;- 1
-{
-    .doTrace(print(a), "step 3")
-    a &lt;- 2
-}
-{
-    .doTrace(print(a), "step 4")
-    a &lt;- 3
-}
-</code></pre>
-
-<p>}
-test_func()
-Tracing test_func() step 3
-[1] 1
-Tracing test_func() step 4
-[1] 2</p>
-
-<p>```</p></blockquote>
-
-<p>搭配quote使用可以直接更改function的程式碼，好用好用！
-注意at參數所代表的位置！！(讓我滿意外的)</p>
-
-<h1>Reference</h1>
-
-<p><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a></p>
 ]]></content>
   </entry>
   

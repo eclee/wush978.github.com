@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: MongoDB | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/mongodb/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-08-30T13:48:04+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Benchmark of Saving and Loading R Objects]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/"/>
+    <updated>2012-08-30T12:48:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects</id>
+    <content type="html"><![CDATA[<h1>Introduction</h1>
+
+<p>To compare the speed of saving and loading R objects to and from MongoDB
+with or without serialization.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>OpenVZ with Ubuntu 12.04, i7-2600 CPU @ 3.4GHz, 2 processors, 4G RAM</li>
+<li>Local MongoDB</li>
+<li>Local PostgreSQL</li>
+<li>R 1.14.1</li>
+<li>rmongodb 1.0.3</li>
+<li>RPostgreSQL 0.3-2</li>
+</ul>
+
+
+<h1>Initialize</h1>
+
+<p><code>sh
+sudo apt-get install mongodb
+</code></p>
+
+<h2>R</h2>
+
+<p><code>sh install libpq-dev
+sudo apt-get install libpq-dev
+</code></p>
+
+<p><code>r install R packages
+install.packages("rmongodb")
+install.packages("RPostgreSQL")
+</code></p>
+
+<h1>Benchmark</h1>
+
+<p>```r Test saving object serialized or not
+{ # loading package
+  library(rmongodb)
+  mongo &lt;- mongo.create()
+  if (!mongo.is.connected(mongo)) {</p>
+
+<pre><code>stop("disconnected")
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>save1 &lt;- function(a) {
+  for(i in 1:repeat.time) {</p>
+
+<pre><code>b &lt;- mongo.bson.from.list(list(Rdata = a))  
+mongo.insert(mongo, "test.save1", b)
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>load1 &lt;- function() {
+  result &lt;- list()
+  length(result) &lt;- repeat.time
+  cursor &lt;- mongo.find(mongo, "test.save1")
+  index &lt;- 1
+  while(mongo.cursor.next(cursor)) {</p>
+
+<pre><code>result[[index]] &lt;- mongo.bson.to.list(mongo.cursor.value(cursor))
+index &lt;- index + 1
+</code></pre>
+
+<p>  }
+  result
+}</p>
+
+<p>save2 &lt;- function(a) {
+  for(i in 1:repeat.time) {</p>
+
+<pre><code>buf &lt;- mongo.bson.buffer.create()
+mongo.bson.buffer.append(buf, "Rdata", serialize(a, NULL, FALSE))
+mongo.insert(mongo, "test.save2", mongo.bson.from.buffer(buf))
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>load2 &lt;- function() {
+  result &lt;- list()
+  length(result) &lt;- repeat.time
+  cursor &lt;- mongo.find(mongo, "test.save2")
+  index &lt;- 1
+  while(mongo.cursor.next(cursor)) {</p>
+
+<pre><code>result[[index]] &lt;- unserialize(mongo.bson.value(mongo.cursor.value(cursor), "Rdata"))
+index &lt;- index + 1
+</code></pre>
+
+<p>  }
+  result
+}</p>
+
+<p>repeat.time &lt;- 1000
+mongo.drop.database(mongo, "test")
+a &lt;- matrix(rnorm(100<sup>2),</sup> 100, 100)
+system.time({ #direct way
+  print("directly save and load")
+  save1(a)
+  a.result &lt;- load1()
+})
+system.time({ #serialized way
+  print("serialized before save and load")
+  save2(a)
+  a.result2 &lt;- load2()
+})
+```</p>
+
+<p>I tested many times and notice that the results are very unstable, and
+I guess that the serialized way is faster a little bit.</p>
+
+<p>I paste some results here:</p>
+
+<p>```
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.226   0.083   4.221
+[1] "serialized before save and load"
+   user  system elapsed
+  0.746   0.095   3.578
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.227   0.090   3.981
+[1] "serialized before save and load"
+   user  system elapsed
+  0.771   0.106   3.327
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.232   0.104   3.808
+[1] "serialized before save and load"
+   user  system elapsed
+  0.760   0.110   3.289
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.303   0.078   3.827
+[1] "serialized before save and load"
+   user  system elapsed
+  0.763   0.109   3.413
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.237   0.089   3.834
+[1] "serialized before save and load"
+   user  system elapsed
+  0.773   0.091   3.458
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.247   0.114   3.970
+[1] "serialized before save and load"
+   user  system elapsed
+  0.781   0.110   3.738
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.331   0.142   4.329
+[1] "serialized before save and load"
+   user  system elapsed
+  0.753   0.098   3.202
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.217   0.090   3.766
+[1] "serialized before save and load"
+   user  system elapsed
+  0.737   0.097   5.339
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.231   0.103   3.875
+[1] "serialized before save and load"
+   user  system elapsed
+  0.751   0.105   3.377
+rmongodb package (mongo-r-driver) loaded
+Use 'help("mongo")' to get started.</p>
+
+<p>[1] TRUE
+[1] "directly save and load"
+   user  system elapsed
+  1.202   0.085   6.935
+[1] "serialized before save and load"
+   user  system elapsed
+  0.752   0.082   3.996
+```</p>
+]]></content>
+  </entry>
+  
+</feed>

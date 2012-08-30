@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: PostgreSQL | Wush筆記]]></title>
+  <link href="http://wush978.github.com/blog/categories/postgresql/atom.xml" rel="self"/>
+  <link href="http://wush978.github.com/"/>
+  <updated>2012-08-30T13:48:04+08:00</updated>
+  <id>http://wush978.github.com/</id>
+  <author>
+    <name><![CDATA[Wush978]]></name>
+    <email><![CDATA[wush.978@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Initialize PostgreSQL in Ubuntu 12.04]]></title>
+    <link href="http://wush978.github.com/blog/2012/08/30/initialize-postgresql/"/>
+    <updated>2012-08-30T13:41:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2012/08/30/initialize-postgresql</id>
+    <content type="html"><![CDATA[<h1>Install</h1>
+
+<p><code>sh
+sudo apt-get install postgresql
+</code></p>
+
+<h1>Configure</h1>
+
+<p><code>sh
+sudo -u postgres createuser -D -P ruser
+sudo -u postgres createdb -O ruser ruserdb
+</code></p>
+
+<p>Edit <code>/etc/postgresql/9.1/main/pg_hba.conf</code>.</p>
+
+<p>Change this line:
+<code>
+local   all             all                                     peer
+</code>
+to this:
+<code>
+local   all             all                                     md5
+</code></p>
+
+<p>Restart service:</p>
+
+<p><code>
+sudo service postgresql restart
+</code></p>
+
+<h1>Reference</h1>
+
+<ul>
+<li><a href="http://blog.deliciousrobots.com/2011/12/13/get-postgres-working-on-ubuntu-or-linux-mint/">GET POSTGRES WORKING ON UBUNTU OR LINUX MINT</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

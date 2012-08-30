@@ -9,7 +9,11 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Inroduction Recently I am exploring the linear algebra features provided in Armadillo through RcppArmadillo. Here is the note for myself. Note these &hellip;">
+  <meta name="description" content="Install 1
+sudo apt-get install postgresql Configure 1
+2
+sudo -u postgres createuser -D -P ruser
+sudo -u postgres createdb -O ruser ruserdb Edit /etc/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -108,6 +112,563 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/30/initialize-postgresql/">Initialize PostgreSQL in Ubuntu 12.04</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-30T13:41:00+08:00" pubdate data-updated="true">Aug 30<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/30/initialize-postgresql/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>Install</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install postgresql
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Configure</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo -u postgres createuser -D -P ruser
+</span><span class='line'>sudo -u postgres createdb -O ruser ruserdb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Edit <code>/etc/postgresql/9.1/main/pg_hba.conf</code>.</p>
+
+<p>Change this line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nb">local   </span>all             all                                     peer
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nb">local   </span>all             all                                     md5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Restart service:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo service postgresql restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Reference</h1>
+
+<ul>
+<li><a href="http://blog.deliciousrobots.com/2011/12/13/get-postgres-working-on-ubuntu-or-linux-mint/">GET POSTGRES WORKING ON UBUNTU OR LINUX MINT</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/">Benchmark of Saving and Loading R Objects</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-30T12:48:00+08:00" pubdate data-updated="true">Aug 30<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>Introduction</h1>
+
+<p>To compare the speed of saving and loading R objects to and from MongoDB
+with or without serialization.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>OpenVZ with Ubuntu 12.04, i7-2600 CPU @ 3.4GHz, 2 processors, 4G RAM</li>
+<li>Local MongoDB</li>
+<li>Local PostgreSQL</li>
+<li>R 1.14.1</li>
+<li>rmongodb 1.0.3</li>
+<li>RPostgreSQL 0.3-2</li>
+</ul>
+
+
+<h1>Initialize</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install mongodb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>R</h2>
+
+<figure class='code'><figcaption><span>install libpq-dev</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install libpq-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>install R packages</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>install.packages<span class="p">(</span><span class="s">&quot;rmongodb&quot;</span><span class="p">)</span>
+</span><span class='line'>install.packages<span class="p">(</span><span class="s">&quot;RPostgreSQL&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Benchmark</h1>
+
+<figure class='code'><figcaption><span>Test saving object serialized or not</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="p">{</span> <span class="c1"># loading package</span>
+</span><span class='line'>  library<span class="p">(</span>rmongodb<span class="p">)</span>
+</span><span class='line'>  mongo <span class="o">&lt;-</span> mongo.create<span class="p">()</span>
+</span><span class='line'>  <span class="kr">if</span> <span class="p">(</span>!mongo.is.connected<span class="p">(</span>mongo<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    stop<span class="p">(</span><span class="s">&quot;disconnected&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>save1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">for</span><span class="p">(</span>i in <span class="m">1</span>:repeat.time<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    b <span class="o">&lt;-</span> mongo.bson.from.list<span class="p">(</span>list<span class="p">(</span>Rdata <span class="o">=</span> a<span class="p">))</span>
+</span><span class='line'>    mongo.insert<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save1&quot;</span><span class="p">,</span> b<span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>load1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  result <span class="o">&lt;-</span> list<span class="p">()</span>
+</span><span class='line'>  length<span class="p">(</span>result<span class="p">)</span> <span class="o">&lt;-</span> repeat.time
+</span><span class='line'>  cursor <span class="o">&lt;-</span> mongo.find<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save1&quot;</span><span class="p">)</span>
+</span><span class='line'>  index <span class="o">&lt;-</span> <span class="m">1</span>
+</span><span class='line'>  <span class="kr">while</span><span class="p">(</span>mongo.cursor.next<span class="p">(</span>cursor<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    result<span class="p">[[</span>index<span class="p">]]</span> <span class="o">&lt;-</span> mongo.bson.to.list<span class="p">(</span>mongo.cursor.value<span class="p">(</span>cursor<span class="p">))</span>
+</span><span class='line'>    index <span class="o">&lt;-</span> index <span class="o">+</span> <span class="m">1</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  result
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>save2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">for</span><span class="p">(</span>i in <span class="m">1</span>:repeat.time<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    buf <span class="o">&lt;-</span> mongo.bson.buffer.create<span class="p">()</span>
+</span><span class='line'>    mongo.bson.buffer.append<span class="p">(</span>buf<span class="p">,</span> <span class="s">&quot;Rdata&quot;</span><span class="p">,</span> serialize<span class="p">(</span>a<span class="p">,</span> <span class="kc">NULL</span><span class="p">,</span> <span class="kc">FALSE</span><span class="p">))</span>
+</span><span class='line'>    mongo.insert<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save2&quot;</span><span class="p">,</span> mongo.bson.from.buffer<span class="p">(</span>buf<span class="p">))</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>load2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  result <span class="o">&lt;-</span> list<span class="p">()</span>
+</span><span class='line'>  length<span class="p">(</span>result<span class="p">)</span> <span class="o">&lt;-</span> repeat.time
+</span><span class='line'>  cursor <span class="o">&lt;-</span> mongo.find<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test.save2&quot;</span><span class="p">)</span>
+</span><span class='line'>  index <span class="o">&lt;-</span> <span class="m">1</span>
+</span><span class='line'>  <span class="kr">while</span><span class="p">(</span>mongo.cursor.next<span class="p">(</span>cursor<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    result<span class="p">[[</span>index<span class="p">]]</span> <span class="o">&lt;-</span> unserialize<span class="p">(</span>mongo.bson.value<span class="p">(</span>mongo.cursor.value<span class="p">(</span>cursor<span class="p">),</span> <span class="s">&quot;Rdata&quot;</span><span class="p">))</span>
+</span><span class='line'>    index <span class="o">&lt;-</span> index <span class="o">+</span> <span class="m">1</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  result
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>repeat.time <span class="o">&lt;-</span> <span class="m">1000</span>
+</span><span class='line'>mongo.drop.database<span class="p">(</span>mongo<span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">)</span>
+</span><span class='line'>a <span class="o">&lt;-</span> matrix<span class="p">(</span>rnorm<span class="p">(</span><span class="m">100</span><span class="o">^</span><span class="m">2</span><span class="p">),</span> <span class="m">100</span><span class="p">,</span> <span class="m">100</span><span class="p">)</span>
+</span><span class='line'>system.time<span class="p">({</span> <span class="c1">#direct way</span>
+</span><span class='line'>  print<span class="p">(</span><span class="s">&quot;directly save and load&quot;</span><span class="p">)</span>
+</span><span class='line'>  save1<span class="p">(</span>a<span class="p">)</span>
+</span><span class='line'>  a.result <span class="o">&lt;-</span> load1<span class="p">()</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>system.time<span class="p">({</span> <span class="c1">#serialized way</span>
+</span><span class='line'>  print<span class="p">(</span><span class="s">&quot;serialized before save and load&quot;</span><span class="p">)</span>
+</span><span class='line'>  save2<span class="p">(</span>a<span class="p">)</span>
+</span><span class='line'>  a.result2 <span class="o">&lt;-</span> load2<span class="p">()</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I tested many times and notice that the results are very unstable, and
+I guess that the serialized way is faster a little bit.</p>
+
+<p>I paste some results here:</p>
+
+<figure class='code'><figcaption><span>Test saving object serialized or not</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.226</span>   <span class="m">0.083</span>   <span class="m">4.221</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.746</span>   <span class="m">0.095</span>   <span class="m">3.578</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.227</span>   <span class="m">0.090</span>   <span class="m">3.981</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.771</span>   <span class="m">0.106</span>   <span class="m">3.327</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.232</span>   <span class="m">0.104</span>   <span class="m">3.808</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.760</span>   <span class="m">0.110</span>   <span class="m">3.289</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.303</span>   <span class="m">0.078</span>   <span class="m">3.827</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.763</span>   <span class="m">0.109</span>   <span class="m">3.413</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.237</span>   <span class="m">0.089</span>   <span class="m">3.834</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.773</span>   <span class="m">0.091</span>   <span class="m">3.458</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.247</span>   <span class="m">0.114</span>   <span class="m">3.970</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.781</span>   <span class="m">0.110</span>   <span class="m">3.738</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.331</span>   <span class="m">0.142</span>   <span class="m">4.329</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.753</span>   <span class="m">0.098</span>   <span class="m">3.202</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.217</span>   <span class="m">0.090</span>   <span class="m">3.766</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.737</span>   <span class="m">0.097</span>   <span class="m">5.339</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.231</span>   <span class="m">0.103</span>   <span class="m">3.875</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.751</span>   <span class="m">0.105</span>   <span class="m">3.377</span>
+</span><span class='line'>rmongodb package <span class="p">(</span>mongo<span class="o">-</span>r<span class="o">-</span>driver<span class="p">)</span> loaded
+</span><span class='line'>Use <span class="s">&#39;help(&quot;mongo&quot;)&#39;</span> to get started.
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="kc">TRUE</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;directly save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">1.202</span>   <span class="m">0.085</span>   <span class="m">6.935</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;serialized before save and load&quot;</span>
+</span><span class='line'>   user  system elapsed
+</span><span class='line'>  <span class="m">0.752</span>   <span class="m">0.082</span>   <span class="m">3.996</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/24/pros-and-cons-of-virtualized-system/">我喜歡使用虛擬化系統</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-24T11:01:00+08:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/24/pros-and-cons-of-virtualized-system/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>之前我因為工作的關係, 需要使用虛擬化系統來跑測試。</p>
+
+<p>這陣子在架了Proxmox的Virtualization Cluster後覺得這種系統在跑科學模擬上真是太方便，理由如下：</p>
+
+<ul>
+<li>環境管理: 我可以對整台機器的環境進行備份、還原和複製。</li>
+<li>穩定: 虛擬機器內再怎麼當機怎麼毀滅, 幾乎不會影響到整台機器。所以我不用跑到實驗室去重開，頂多進入Proxmox主控台去重開虛擬機器即可。</li>
+</ul>
+
+
+<p>而使用Proxmox的理由則是：</p>
+
+<ul>
+<li>Free</li>
+<li>我熟悉ubuntu/debian system</li>
+</ul>
+
+
+<p>當然這樣做也是有一些缺點：</p>
+
+<ul>
+<li>學習曲線: 我發現在這種東西的學習上, 我似乎比一般人還敏感一點, 所以我可以接受比較陡峭的學習曲線。</li>
+<li>效能: 這點我還沒有空去實際測試。但是虛擬機器正常來說效能是會比較慢的。以目前我的經驗是，使用OpenVZ的虛擬化技術上並沒有感受到特別的效能損失。</li>
+</ul>
+
+
+<p>有興趣或有類似需求或的朋友可以參考看看</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1956,509 +2517,6 @@ Self seconds: time spent in function alone.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/06/04/rcpp-2/">Rcpp-2</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-06-04T13:56:00+08:00" pubdate data-updated="true">Jun 4<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/06/04/rcpp-2/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>本文延續<a href="/blog/2012/02/28/rcpp/">Rcpp-1</a>。</p>
-
-<h1>從R傳遞資料到C++</h1>
-
-<h2>傳遞到對應的物件</h2>
-
-<h3>Vector</h3>
-
-<p>在R的底層之中，最基礎的資料型態就是某六種型態的vector(詳情請見下表)。
-傳遞這六種資料型態的vector到C++並不難，只要宣告對應的Rcpp class以及把透過<code>.Call</code>傳遞進來的SEXP丟到Rcpp class的constructor內就好了。</p>
-
-<p>表一：</p>
-
-<table>
-<thead>
-<tr>
-<th>atomic type</th>
-<th>Rcpp Class</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>logical</td>
-<td>LogicalVector</td>
-</tr>
-<tr>
-<td>integer</td>
-<td>IntegerVector</td>
-</tr>
-<tr>
-<td>double</td>
-<td>NumericVector</td>
-</tr>
-<tr>
-<td>complex</td>
-<td>ComplexVector</td>
-</tr>
-<tr>
-<td>character</td>
-<td>CharacterVector</td>
-</tr>
-<tr>
-<td>raw</td>
-<td>RawVector</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>ps. 在R中，幾乎所有物件都是vector</p>
-
-<p>以<code>integer</code>為例子:</p>
-
-<figure class='code'><figcaption><span>test-rcpp.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;Rcpp.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">using</span> <span class="k">namespace</span> <span class="n">Rcpp</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">RcppExport</span> <span class="n">SEXP</span> <span class="n">R2CppInteger</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">RIntegerVec</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">SEXP</span> <span class="n">R2CppInteger</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">r_int_vec</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">IntegerVector</span> <span class="n">int_vec</span><span class="p">(</span><span class="n">r_int_vec</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="n">R_len_t</span> <span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">int_vec</span><span class="p">.</span><span class="n">length</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;%d &quot;</span><span class="p">,</span> <span class="n">int_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> length: %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">int_vec</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">R_NilValue</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>編譯後，在R底下執行</p>
-
-<figure class='code'><figcaption><span>test.R</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>dyn.load<span class="p">(</span><span class="s">&quot;test-rcpp.so&quot;</span><span class="p">)</span>
-</span><span class='line'>a <span class="o">&lt;-</span> <span class="m">1</span>L:<span class="m">10</span>L
-</span><span class='line'><span class="m">.</span>Call<span class="p">(</span><span class="s">&quot;R2CppInteger&quot;</span><span class="p">,</span> a<span class="p">)</span>
-</span><span class='line'>dyn.unload<span class="p">(</span><span class="s">&quot;test-rcpp.so&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>就會看到輸出</p>
-
-<pre><code>1 2 3 4 5 6 7 8 9 10 
- length: 10 
-NULL
-</code></pre>
-
-<p>如果需要使用上的細節，只需要查閱<a href="http://dirk.eddelbuettel.com/code/rcpp/html/classVector.html">Rcpp Reference中關於Vector</a>的部分。</p>
-
-<p>而Rcpp還有許多可以直接傳遞其他進階的R物件的C++物件。</p>
-
-<h3>Matrix</h3>
-
-<p>因為R中的matrix 或 array 物件其實就是加上dimension的vector，所以可以直接用xxxVector物件在C++內處理。
-Rcpp中另外還有更類似R的matrix的xxxMatrix物件。
-只是要注意，在C++裡面取出來的row或column在C++裡的型態會是<code>Rcpp::xxxMatrix::Row</code>或<code>Rcpp::xxxMatrix::Column</code>。請見以下範例：</p>
-
-<figure class='code'><figcaption><span>test-rcpp.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;Rcpp.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">using</span> <span class="k">namespace</span> <span class="n">Rcpp</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">RcppExport</span> <span class="n">SEXP</span> <span class="n">R2CppInteger</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">RIntegerVec</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">SEXP</span> <span class="n">R2CppInteger</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">r_int_mat</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">IntegerMatrix</span> <span class="n">int_mat</span><span class="p">(</span><span class="n">r_int_mat</span><span class="p">);</span>
-</span><span class='line'>  <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;print the matrix</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">int_mat</span><span class="p">.</span><span class="n">nrow</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">int_mat</span><span class="p">.</span><span class="n">ncol</span><span class="p">();</span><span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;%d &quot;</span><span class="p">,</span> <span class="n">int_mat</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">));</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>      <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;print the first column: &quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="n">IntegerMatrix</span><span class="o">::</span><span class="n">Column</span> <span class="n">int_mat_col</span><span class="p">(</span> <span class="n">int_mat</span><span class="p">(</span><span class="n">internal</span><span class="o">::</span><span class="n">NamedPlaceHolder</span><span class="p">(),</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">);</span>
-</span><span class='line'>  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">int_mat</span><span class="p">.</span><span class="n">nrow</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;%d &quot;</span><span class="p">,</span> <span class="n">int_mat_col</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">Rprintf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">R_NilValue</span><span class="p">;</span> 
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>編譯之後在R底下執行</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>dyn.load<span class="p">(</span><span class="s">&quot;test-rcpp.so&quot;</span><span class="p">)</span>
-</span><span class='line'>a <span class="o">&lt;-</span> matrix<span class="p">(</span><span class="m">1</span>L:<span class="m">10</span>L<span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
-</span><span class='line'><span class="m">.</span>Call<span class="p">(</span><span class="s">&quot;R2CppInteger&quot;</span><span class="p">,</span> a<span class="p">)</span>
-</span><span class='line'>dyn.unload<span class="p">(</span><span class="s">&quot;test-rcpp.so&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>就可以看到輸出</p>
-
-<pre><code>print the matrix
-1 3 5 7 9 
-2 4 6 8 10 
-print the first column: 1 2 
-NULL
-</code></pre>
-
-<h3>List</h3>
-
-<p>list物件在R也是非常的重要，而且和上述的vector型態已經不一樣了。
-在R中，一個vector內的資料一定只能是相同的atomic type，但是在list中就可以放不同的atomic type。
-說穿了，List物件也只是R物件的vector，這從Rcpp中List的定義：<code>typedef Vector&lt;VECSXP&gt; List</code>可窺見一二。</p>
-
-<figure class='code'><figcaption><span>test-rcpp.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;Rcpp.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">using</span> <span class="k">namespace</span> <span class="n">Rcpp</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">RcppExport</span> <span class="n">SEXP</span> <span class="n">R2CppList</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">RList</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Function</span> <span class="n">show</span><span class="p">(</span><span class="s">&quot;show&quot;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">SEXP</span> <span class="n">R2CppList</span><span class="p">(</span><span class="n">SEXP</span> <span class="n">RList</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">List</span> <span class="n">list</span><span class="p">(</span><span class="n">RList</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="n">R_len_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">list</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="n">show</span><span class="p">(</span><span class="n">list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">R_NilValue</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ps. 這裡的Function是Rcpp中呼叫R function的方式，之後會再介紹。這裡的用途只是把傳入的東西以R中的<code>show</code>函數顯示到console上。</p>
-
-<p>編譯之後在R底下執行</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>dyn.load<span class="p">(</span><span class="s">&quot;test-rcpp.so&quot;</span><span class="p">)</span>
-</span><span class='line'>a <span class="o">&lt;-</span> list<span class="p">()</span>
-</span><span class='line'>a<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">&lt;-</span> <span class="m">1</span>L:<span class="m">10</span>L
-</span><span class='line'>a<span class="p">[[</span><span class="s">&#39;a&#39;</span><span class="p">]]</span> <span class="o">&lt;-</span> paste<span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="m">1</span>:<span class="m">10</span><span class="p">)</span>
-</span><span class='line'>a<span class="p">[[</span><span class="m">2</span><span class="p">]]</span> <span class="o">&lt;-</span> factor<span class="p">(</span>sample<span class="p">(</span><span class="m">1</span>:<span class="m">2</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span> <span class="kc">TRUE</span><span class="p">))</span>
-</span><span class='line'><span class="m">.</span>Call<span class="p">(</span><span class="s">&quot;R2CppList&quot;</span><span class="p">,</span> a<span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>就可以看到：</p>
-
-<pre><code> [1]  1  2  3  4  5  6  7  8  9 10
- [1] 2 2 1 2 2 1 2 1 1 2
-Levels: 1 2
-NULL
-</code></pre>
-
-<h3>data.frame</h3>
-
-<p>data.frame 其實就只是滿足某些條件的List物件，所以是可以用List物件來做處理的。
-除此之外Rcpp也提供C++物件：DataFrame給使用者。
-但是目前除了提供方便的建立DataFrame物件之外，只有類似List的操作方法。在此就不提供範例了。</p>
-
-<h2>傳遞到STL物件</h2>
-
-<p>Rcpp可以利用<code>as&lt;&gt;</code>函數將R物件轉換成對應的STL物件
-。</p>
-
-<h1>參考資料</h1>
-
-<ul>
-<li><a href="http://cran.r-project.org/doc/manuals/R-lang.html#Vector-objects">R Language Definition</a></li>
-<li><a href="http://cran.r-project.org/web/packages/Rcpp/vignettes/Rcpp-quickref.pdf">Rcpp Quick Reference Guide</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/06/04/shi-yong-interactive-charts-and-slides-with-r/">試用Interactive Charts and Slides With R</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-06-04T10:18:00+08:00" pubdate data-updated="true">Jun 4<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/06/04/shi-yong-interactive-charts-and-slides-with-r/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>簡介</h1>
-
-<p>新版的RStudio(0.98.228) 推出了<a href="http://www.rstudio.org/docs/authoring/using_markdown">Using Markdown with RStudio</a>，這對於我這個markdown愛好者來說可是大利多呀!!</p>
-
-<p>簡單來說，就是透過以下的流程產生文件:</p>
-
-<p>Rmd &#8211;> Markdown &#8211;> HTML</p>
-
-<p>這裡的Markdown同時還支援:</p>
-
-<ul>
-<li><a href="https://github.github.com/github-flavored-markdown">Github的擴充</a>，更方便的插入code block</li>
-<li><a href="https://github.com/tanoku/sundown">Sundown</a>，支援表格等其他功能</li>
-<li><a href="http://www.mathjax.org/">MathJax</a>，支援數學方程式</li>
-</ul>
-
-
-<p>想了就覺得非常方便!</p>
-
-<h1>使用</h1>
-
-<ol>
-<li>安裝R package <a href="http://yihui.name/knitr/">knitr</a>。我在2.13版本之前的R是無法安裝的，所以想試用的朋友記得把R的版本更新。</li>
-<li>打開Rstudio ，File &#8211;> New &#8211;> R Markdown</li>
-<li>編輯markdown檔案，儲存為<code>xxx.Rmd</code>或<code>xxx.md</code>。注意: 副檔名若為<code>md</code>，就無法使用嵌入R圖片的功能。</li>
-<li>點選編輯器上的<code>Knit HTML</code>就可以預覽產生的HTML格式。目前我個人在這部分遇到困難: 我沒有辦法把R畫出來的圖嵌入產生的HTML內。</li>
-</ol>
-
-
-<h1>語法範例</h1>
-
-<p>這裡是我試過的範例。有興趣的大大可以到<a href="https://github.com/yihui/knitr/tree/master/inst/examples">knitr-example</a> 看看更多的範例。</p>
-
-<ul>
-<li>嵌入R語法:
-
-<pre><code>  ``` {r}
-  cat("hello world")
-  ```
-</code></pre></li>
-<li>嵌入R圖面
-
-<pre><code>  ``` {r 圖片標題, message=FALSE, fig.width=7, fig.height=5}
-  plot(cars)
-  ```
-</code></pre></li>
-<li>行內嵌入方程式
-
-<pre><code>  $latex X_t = \mu_t + \varepsilon_t$
-</code></pre></li>
-<li>方程式區塊
-
-<pre><code>  $$latex
-      \begin{aligned}
-      X_t = \mu_t + \varepsilon_t \\
-      \varepsilon_t ~ Normal(0,1)
-      \end{aligned}
-  $$
-</code></pre></li>
-<li>跳脫字元
-
-<ul>
-<li>要跳脫<code>$latex</code>，使用HTML的語法: <code>&amp;#36;latex</code></li>
-</ul>
-</li>
-</ul>
-
-
-<h1>全命令列環境</h1>
-
-<p>根據stackoverflow裏的某位大大提示，其實knitr套件提供了直接在R中轉換.Rmd至.md的語法：</p>
-
-<figure class='code'><figcaption><span>rmd2md</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>require<span class="p">(</span>knitr<span class="p">)</span> <span class="c1"># required for knitting from rmd to md</span>
-</span><span class='line'>require<span class="p">(</span>markdown<span class="p">)</span> <span class="c1"># required for md to html </span>
-</span><span class='line'>knit<span class="p">(</span><span class="s">&#39;test.rmd&#39;</span><span class="p">,</span> <span class="s">&#39;test.md&#39;</span><span class="p">)</span> <span class="c1"># creates md file</span>
-</span><span class='line'>markdownToHTML<span class="p">(</span><span class="s">&#39;test.md&#39;</span><span class="p">,</span> <span class="s">&#39;test.html&#39;</span><span class="p">)</span> <span class="c1"># creates html file</span>
-</span><span class='line'>browseURL<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;file://&#39;</span><span class="p">,</span> file.path<span class="p">(</span>getwd<span class="p">(),</span><span class="s">&#39;test.html&#39;</span><span class="p">),</span> sep<span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">))</span> <span class="c1"># open file in browser</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>理解了這件事情後，就可以寫出Makefile來在命令列編譯。</p>
-
-<h1>我自己的擴充</h1>
-
-<p>我都是透過php + R 來拼湊出下面這耶東西，環境都是Ubuntu</p>
-
-<ul>
-<li><a href="https://github.com/wush978/knitr2octopress">knitr2octopress</a> : 將Rmd轉換出來的.md檔案內的圖片連結，轉換為使用<a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI scheme</a>的格式。</li>
-<li><a href="https://github.com/wush978/yml2rmd">yml2rmd</a> : 利用yml格式來產生大量圖表的.Rmd檔案，這個文件我還沒空寫, 以後慢慢補&#8230;</li>
-</ul>
-
-
-<h1>參考資料</h1>
-
-<ul>
-<li><a href="https://gist.github.com/2816027">Interactive charts and slides with R, googleVis and knitr</a></li>
-<li><a href="http://www.r-bloggers.com/interactive-html-presentation-with-r-googlevis-knitr-pandoc-and-slidy/">R-blogger: Interactive HTML presentation with R, googleVis, knitr, pandoc and slidy</a></li>
-<li><a href="http://stackoverflow.com/questions/10646665/how-to-convert-r-markdown-to-html-i-e-what-does-knit-html-do-in-rstudio-0-9">How to convert R Markdown to HTML? I.e., What does “Knit HTML” do in Rstudio 0.96?</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/12/eclipse-plugin/">Eclipse-plugin</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-12T18:16:00+08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/03/12/eclipse-plugin/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>相關的Eclipse Plugin</h1>
-
-
-<ul>
-<li><a href="http://subclipse.tigris.org/">Subclipse</a>
-
-<ul>
-<li>http://subclipse.tigris.org/update_1.8.x</li>
-</ul>
-</li>
-<li><a href="https://github.com/pulse00/Symfony-2-Eclipse-Plugin/blob/master/README.md">Symfony Eclipse Plugin</a>
-
-<ul>
-<li>http://pulse00.github.com/p2/</li>
-</ul>
-</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2474,23 +2532,23 @@ NULL
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/08/30/initialize-postgresql/">Initialize PostgreSQL in Ubuntu 12.04</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/30/benchmark-of-saving-and-loading-r-objects/">Benchmark of Saving and Loading R Objects</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/24/pros-and-cons-of-virtualized-system/">我喜歡使用虛擬化系統</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/08/21/rcpparmadillo/">RcppArmadillo</a>
       </li>
     
       <li class="post">
         <a href="/blog/2012/08/16/proxmox-and-r-cluster/">Proxmox &amp; R cluster</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/08/14/r-closure/">R closure</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/20/latex-in-octopress/">Latex in Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/18/cormen-chp6/">Cormen Chp6</a>
       </li>
     
   </ul>
