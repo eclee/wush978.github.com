@@ -9,11 +9,12 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Install 1
-sudo apt-get install postgresql Configure 1
+  <meta name="description" content="rgl 1
+sudo apt-get install r-cran-rgl RBGL, R interface to the Boost Graph Library 1
 2
-sudo -u postgres createuser -D -P ruser
-sudo -u postgres createdb -O ruser ruserdb Edit /etc/ &hellip;">
+3
+#! /usr/bin/R
+source(&quot;http://bioconductor.org/biocLite. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,6 +113,60 @@ sudo -u postgres createdb -O ruser ruserdb Edit /etc/ &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/">R Package Installation Tips on Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-24T13:18:00+08:00" pubdate data-updated="true">Sep 24<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>rgl</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sudo apt-get install r-cran-rgl
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>RBGL, R interface to the Boost Graph Library</h1>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#! /usr/bin/R</span>
+</span><span class='line'>source<span class="p">(</span><span class="s">&quot;http://bioconductor.org/biocLite.R&quot;</span><span class="p">)</span>
+</span><span class='line'>biocLite<span class="p">(</span><span class="s">&quot;RBGL&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2091,432 +2146,6 @@ Self seconds: time spent in function alone.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/06/14/r-debug/">R Debug</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-06-14T01:11:00+08:00" pubdate data-updated="true">Jun 14<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/06/14/r-debug/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>簡介</h1>
-
-<p>很少人能夠第一次寫程式就能寫對，就連最專業的程式設計師也會花大把大把的時間在除錯。
-所以熟悉除錯的工具也是能夠顯著的提昇寫程式的效率。</p>
-
-<p>其實作者我在寫這篇文章之前也完全沒用過除錯工具！想到又能提昇自己的coding效率又讓我熊熊的燃燒起來！！</p>
-
-<h1>除錯函數</h1>
-
-<p>R 提供了以下的除錯功能:</p>
-
-<ul>
-<li><code>traceback</code></li>
-<li><code>browser</code></li>
-<li><code>debug</code></li>
-<li><code>trace</code></li>
-</ul>
-
-
-<p>就讓我來一個個探索吧！</p>
-
-<h2>traceback</h2>
-
-<p>所謂的traceback功能主要的目的，是找出錯誤發生時最後執行的函數：</p>
-
-<figure class='code'><figcaption><span>traceback-example-1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>fail_func1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>size<span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  b <span class="o">&lt;-</span> <span class="m">5</span>
-</span><span class='line'>  b <span class="o">&lt;-</span> b <span class="o">+</span> size
-</span><span class='line'>  b <span class="o">&lt;-</span> b <span class="o">*</span> <span class="m">2</span>
-</span><span class='line'>  b <span class="o">&lt;-</span> b<span class="o">^</span><span class="m">2</span>
-</span><span class='line'>  b
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>fail_func2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>size<span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  b <span class="o">&lt;-</span> fail_func1<span class="p">(</span>size<span class="p">)</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> sample<span class="p">(</span><span class="m">0</span>:<span class="m">1</span><span class="p">,</span>size<span class="p">,</span><span class="kc">FALSE</span><span class="p">)</span>
-</span><span class='line'>  a
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>fail_func2<span class="p">(</span><span class="m">12</span><span class="p">)</span>
-</span><span class='line'>traceback<span class="p">()</span>
-</span><span class='line'>fail_func2<span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
-</span><span class='line'>traceback<span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>運行結果：</p>
-
-<figure class='code'><figcaption><span>traceback-example-1-output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>fail_func2<span class="p">(</span><span class="m">12</span><span class="p">)</span>
-</span><span class='line'><span class="go">Error in sample(0:1, size, FALSE) : </span>
-</span><span class='line'><span class="go">  cannot take a sample larger than the population when &#39;replace = FALSE&#39;</span>
-</span><span class='line'><span class="gp">&gt; </span>traceback<span class="p">()</span>
-</span><span class='line'><span class="go">2: sample(0:1, size, FALSE) at #3</span>
-</span><span class='line'><span class="go">1: fail_func2(12)</span>
-</span><span class='line'><span class="gp">&gt; </span>fail_func2<span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="go">Error in b + size : non-numeric argument to binary operator</span>
-</span><span class='line'><span class="gp">&gt; </span>traceback<span class="p">()</span>
-</span><span class='line'><span class="go">2: fail_func1(size) at #2</span>
-</span><span class='line'><span class="go">1: fail_func2(&quot;test&quot;)</span>
-</span><span class='line'><span class="gp">&gt; </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>可以看出traceback確實的找出最後一個丟出錯誤的函數。</p>
-
-<h2>browser</h2>
-
-<p>traceback只能指出錯誤的發生處，並不能幫助使用者找出程式的錯誤。
-接下來的<code>browser</code>指令則提供互動式的除錯功能：</p>
-
-<ul>
-<li>暫停程式碼的執行</li>
-<li>讓使用者能察看某個時間點的變數狀態，甚至是修改變數狀態。此時以下的指令變成有特殊意義：
-
-<ul>
-<li><code>c</code> 讓程式繼續進行</li>
-<li><code>n</code> 執行下一行</li>
-<li><code>Q</code> 中斷</li>
-</ul>
-</li>
-<li>繼續執行</li>
-</ul>
-
-
-<p>ps. 如果在中斷期間要查詢名稱為<code>c</code>、<code>n</code>、<code>Q</code>的變數內容，請用<code>print</code>指令。
-但是我個人是認為不應該把變數取這類名稱！！</p>
-
-<p>如果運行以下的指令：</p>
-
-<figure class='code'><figcaption><span>browser-example-1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>global_env <span class="o">&lt;-</span> <span class="m">1</span>
-</span><span class='line'>fail_func1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>size<span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  fail_func1_env <span class="o">&lt;-</span> <span class="m">5</span>
-</span><span class='line'>  browser<span class="p">()</span>
-</span><span class='line'>  fail_func1_env <span class="o">&lt;-</span> <span class="m">6</span>
-</span><span class='line'>  fail_func1_env <span class="o">&lt;-</span> <span class="m">7</span>
-</span><span class='line'>  fail_func1_env
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>fail_func2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>size<span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  fail_func2_env <span class="o">&lt;-</span> <span class="m">1</span>
-</span><span class='line'>  b <span class="o">&lt;-</span> fail_func1<span class="p">(</span>size<span class="p">)</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> sample<span class="p">(</span><span class="m">0</span>:<span class="m">1</span><span class="p">,</span>size<span class="p">,</span><span class="kc">FALSE</span><span class="p">)</span>
-</span><span class='line'>  a
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>fail_func2<span class="p">(</span><span class="m">12</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>應該會看到類似以下的結果：</p>
-
-<figure class='code'><figcaption><span>browser-example-1-output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>fail_func2<span class="p">(</span><span class="m">12</span><span class="p">)</span>
-</span><span class='line'><span class="go">Called from: fail_func1(size)</span>
-</span><span class='line'><span class="go">Browse[1]&gt; global_env</span>
-</span><span class='line'><span class="go">[1] 1</span>
-</span><span class='line'><span class="go">Browse[1]&gt; fail_func1_env</span>
-</span><span class='line'><span class="go">[1] 5</span>
-</span><span class='line'><span class="go">Browse[1]&gt; fail_func2_env</span>
-</span><span class='line'><span class="go">Error: object &#39;fail_func2_env&#39; not found</span>
-</span><span class='line'><span class="go">Browse[1]&gt; size</span>
-</span><span class='line'><span class="go">[1] 12</span>
-</span><span class='line'><span class="go">Browse[1]&gt; n</span>
-</span><span class='line'><span class="go">debug at #4: fail_func1_env &lt;- 6</span>
-</span><span class='line'><span class="go">Browse[2]&gt; fail_func1_env</span>
-</span><span class='line'><span class="go">[1] 5</span>
-</span><span class='line'><span class="go">Browse[2]&gt; n</span>
-</span><span class='line'><span class="go">debug at #5: fail_func1_env &lt;- 7</span>
-</span><span class='line'><span class="go">Browse[2]&gt; fail_func1_env</span>
-</span><span class='line'><span class="go">[1] 6</span>
-</span><span class='line'><span class="go">Browse[2]&gt; n</span>
-</span><span class='line'><span class="go">debug at #6: fail_func1_env</span>
-</span><span class='line'><span class="go">Browse[2]&gt; fail_func1_env</span>
-</span><span class='line'><span class="go">[1] 7 </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>在程式跑到<code>browser</code>時就暫停了。
-因為<code>browser</code>是插入在<code>fail_func1</code>的第二行，所以變數應該和該時間點相同，
-值得注意的是此時也只能存取該function environment內的變數</p>
-
-<h2>debug</h2>
-
-<p>我們可以把上一節的<code>browser</code>視為一種<em>中斷點</em>，
-而<code>debug</code>函數則可以幫一個函數的每一行加入中斷點。
-在對內建函數除錯的時候非常有用：</p>
-
-<figure class='code'><figcaption><span>debug-example-1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>debug<span class="p">(</span>lm<span class="p">)</span>
-</span><span class='line'>lm<span class="p">(</span>Sepal.Length~Species<span class="p">,</span>iris<span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>debug-example-1-output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>lm<span class="p">(</span>Sepal.Length~Species<span class="p">,</span>iris<span class="p">)</span>
-</span><span class='line'><span class="go">debugging in: lm(Sepal.Length ~ Species, iris)</span>
-</span><span class='line'><span class="go">debug: {</span>
-</span><span class='line'><span class="go">    ret.x &lt;- x</span>
-</span><span class='line'><span class="go">    ret.y &lt;- y</span>
-</span><span class='line'><span class="go">... 略 ...</span>
-</span><span class='line'><span class="go">    z</span>
-</span><span class='line'><span class="go">}</span>
-</span><span class='line'><span class="go">Browse[2]&gt; n</span>
-</span><span class='line'><span class="go">debug: ret.x &lt;- x</span>
-</span><span class='line'><span class="go">Browse[2]&gt; n</span>
-</span><span class='line'><span class="go">debug: ret.y &lt;- y</span>
-</span><span class='line'><span class="go">Browse[2]&gt; n</span>
-</span><span class='line'><span class="go">debug: cl &lt;- match.call()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>除錯完畢後可用<code>undebug</code>來將中斷點移除。</p>
-
-<h2>trace</h2>
-
-<p>有時候只是檢視或修改變數並不夠。
-<code>trace</code>函數能在除錯時插入程式碼到某個函數，
-並在<code>untrace</code>後還原該函數。</p>
-
-<figure class='code'><figcaption><span>str(trace)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>str<span class="p">(</span>trace<span class="p">)</span>
-</span><span class='line'><span class="go">function (what, tracer, exit, at, print, signature, where = topenv(parent.frame()), </span>
-</span><span class='line'><span class="go">    edit = FALSE)  </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>what</code>: 要修改的函數名稱</li>
-<li><code>tracer</code>: 要插入的函數或expression。<code>trace</code>會在<code>at</code>給的行數之前執行，或是<code>what</code>開始之前執行。</li>
-<li><code>exit</code>: 當<code>what</code>結束之後執行的函數或expression</li>
-<li><code>at</code>: <code>trace</code>執行的行數。</li>
-</ul>
-
-
-<p>其他的參數請參閱trace的說明。</p>
-
-<p>測試一下：</p>
-
-<figure class='code'><figcaption><span>trace-example-1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>test_func <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">1</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">2</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">3</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>trace<span class="p">(</span>test_func<span class="p">,</span> browser<span class="p">,</span> browser<span class="p">)</span>
-</span><span class='line'>test_func<span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>trace-example-1-output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>test_func<span class="p">()</span>
-</span><span class='line'><span class="go">Tracing test_func() on entry </span>
-</span><span class='line'><span class="go">Called from: eval(expr, envir, enclos)</span>
-</span><span class='line'><span class="go">Browse[1]&gt; a</span>
-</span><span class='line'><span class="go">Error: object &#39;a&#39; not found</span>
-</span><span class='line'><span class="go">Browse[1]&gt; c</span>
-</span><span class='line'><span class="go">Tracing test_func() on exit </span>
-</span><span class='line'><span class="go">Called from: eval(expr, envir, enclos)</span>
-</span><span class='line'><span class="go">Browse[1]&gt; a</span>
-</span><span class='line'><span class="go">[1] 3</span>
-</span><span class='line'><span class="go">Browse[1]&gt; c</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>可以看到第一次browser是在執行test_func之前，所以<code>a</code>不存在。
-第二次則是離開的時候，所以<code>a</code>為<code>3</code>。</p>
-
-<figure class='code'><figcaption><span>trace-example-2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>test_func <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">1</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">2</span>
-</span><span class='line'>  a <span class="o">&lt;-</span> <span class="m">3</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>trace<span class="p">(</span>test_func<span class="p">,</span> quote<span class="p">(</span>print<span class="p">(</span>a<span class="p">)),</span> at<span class="o">=</span><span class="m">3</span>:<span class="m">4</span><span class="p">)</span> <span class="c1">#利用quote直接插入print(a)到程式中</span>
-</span><span class='line'>body<span class="p">(</span>test_func<span class="p">)</span>
-</span><span class='line'>test_func<span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>trace-example-2-output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>body<span class="p">(</span>test_func<span class="p">)</span>
-</span><span class='line'><span class="go">{</span>
-</span><span class='line'><span class="go">    a &lt;- 1</span>
-</span><span class='line'><span class="go">    {</span>
-</span><span class='line'><span class="go">        .doTrace(print(a), &quot;step 3&quot;)</span>
-</span><span class='line'><span class="go">        a &lt;- 2</span>
-</span><span class='line'><span class="go">    }</span>
-</span><span class='line'><span class="go">    {</span>
-</span><span class='line'><span class="go">        .doTrace(print(a), &quot;step 4&quot;)</span>
-</span><span class='line'><span class="go">        a &lt;- 3</span>
-</span><span class='line'><span class="go">    }</span>
-</span><span class='line'><span class="go">}</span>
-</span><span class='line'><span class="gp">&gt; </span>test_func<span class="p">()</span>
-</span><span class='line'><span class="go">Tracing test_func() step 3 </span>
-</span><span class='line'><span class="go">[1] 1</span>
-</span><span class='line'><span class="go">Tracing test_func() step 4 </span>
-</span><span class='line'><span class="go">[1] 2</span>
-</span><span class='line'><span class="gp">&gt; </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>搭配quote使用可以直接更改function的程式碼，好用好用！
-注意at參數所代表的位置！！(讓我滿意外的)</p>
-
-<h1>Reference</h1>
-
-<p><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2532,6 +2161,10 @@ Self seconds: time spent in function alone.
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/">R package installation tips on Ubuntu</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/08/30/initialize-postgresql/">Initialize PostgreSQL in Ubuntu 12.04</a>
       </li>
     
@@ -2545,10 +2178,6 @@ Self seconds: time spent in function alone.
     
       <li class="post">
         <a href="/blog/2012/08/21/rcpparmadillo/">RcppArmadillo</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/08/16/proxmox-and-r-cluster/">Proxmox &amp; R cluster</a>
       </li>
     
   </ul>
