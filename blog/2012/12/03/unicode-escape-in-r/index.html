@@ -5,11 +5,16 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: PHP - Wush筆記</title>
+  <title>unicode escape in R - Wush筆記</title>
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Category: PHP">
+  <meta name="description" content="簡介 最近需要分析中文資料，就遇到了unicode escape的問題。 除了抓下來的資料問題外，就是轉JSON的時候也會跑出來 1
+2
+3
+library(rjson)
+toJSON(&quot;測試&quot;)
+toJSON(&quot;測試&quot;, &quot;R&quot;) 1 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +23,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://wush978.github.comblog/categories/php">
+  <link rel="canonical" href="http://wush978.github.com/blog/2012/12/03/unicode-escape-in-r">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -107,50 +112,153 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: PHP</h1>
+    
+      <h1 class="entry-title">Unicode Escape in R</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-03T17:14:00+08:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
+
+
+<div class="entry-content"><h1>簡介</h1>
+
+<p>最近需要分析中文資料，就遇到了unicode escape的問題。</p>
+
+<p>除了抓下來的資料問題外，就是轉JSON的時候也會跑出來</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>rjson<span class="p">)</span>
+</span><span class='line'>toJSON<span class="p">(</span><span class="s">&quot;測試&quot;</span><span class="p">)</span>
+</span><span class='line'>toJSON<span class="p">(</span><span class="s">&quot;測試&quot;</span><span class="p">,</span> <span class="s">&quot;R&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 
-  
-  <h2>2012</h2>
 
-<article>
-  
-<h1><a href="/blog/2012/03/09/eclipse-svn-symfony/">eclipse-svn-symfony</a></h1>
-<time datetime="2012-03-09T18:36:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>09</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/php/'>PHP</a>, <a class='category' href='/blog/categories/eclipse/'>eclipse</a>, <a class='category' href='/blog/categories/svn/'>svn</a>, <a class='category' href='/blog/categories/symfony2/'>symfony2</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/03/09/build-php-development-enviornment/">php開發建置</a></h1>
-<time datetime="2012-03-09T11:23:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>09</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/php/'>PHP</a>, <a class='category' href='/blog/categories/eclipse/'>eclipse</a>, <a class='category' href='/blog/categories/svn/'>svn</a></span>
-</footer>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>&gt; library<span class="o">(</span>rjson<span class="o">)</span>
+</span><span class='line'>&gt; toJSON<span class="o">(</span><span class="s2">&quot;測試&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> <span class="s2">&quot;\&quot;\\u6e2c\\u8a66\&quot;&quot;</span>
+</span><span class='line'>&gt; toJSON<span class="o">(</span><span class="s2">&quot;測試&quot;</span>, <span class="s2">&quot;R&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> <span class="s2">&quot;\&quot;測試\&quot;&quot;</span>
+</span><span class='line'>&gt;
+</span></code></pre></td></tr></table></div></figure>
 
 
-</article>
+<p>中間的<code>\u6e2c\u8a66</code>就是unicode escape</p>
 
+<h1>解法原理</h1>
+
+<p>上面的<code>\u6e2c</code>中，<code>\u</code>是header，<code>6e2c</code>是<strong>UTF16BE</strong>編碼的hex code。</p>
+
+<p>了解這點之後，就很容易自己做出解決方法：</p>
+
+<ul>
+<li>利用regular expression(如<code>gregexpr</code>)定位<code>\\u[0-9a-f]{4,4}</code></li>
+<li>利用iconv把後面的兩個byte從<strong>UTF16BE</strong>轉換回<strong>UTF8</strong></li>
+</ul>
+
+
+<h1>很弱的實作</h1>
+
+<p>但是我在R裏面沒有找到原生的hex轉string的函數，最後就自己刻了兩個函數，效能很差。</p>
+
+<ul>
+<li><a href="git://gist.github.com/4193275.git"><code>hex2str</code></a></li>
+<li><a href="git://gist.github.com/4193405.git"><code>remove_unicode_escape</code></a></li>
+</ul>
+
+
+<p>但是原理知道了，所以之後我有空可能刻個C++的解決方案。</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Wush978</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-03T17:14:00+08:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/r/'>R</a>, <a class='category' href='/blog/categories/unicode/'>unicode</a>, <a class='category' href='/blog/categories/中文/'>中文</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://wush978.github.com/blog/2012/12/03/unicode-escape-in-r/" data-via="" data-counturl="http://wush978.github.com/blog/2012/12/03/unicode-escape-in-r/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/" title="Previous Post: R package installation tips on Ubuntu">&laquo; R package installation tips on Ubuntu</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -206,7 +314,10 @@
       var disqus_shortname = 'wush978';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://wush978.github.com/blog/2012/12/03/unicode-escape-in-r/';
+        var disqus_url = 'http://wush978.github.com/blog/2012/12/03/unicode-escape-in-r/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
