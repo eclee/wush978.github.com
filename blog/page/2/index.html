@@ -802,9 +802,30 @@ Self seconds: time spent in function alone.
 <p>搭配quote使用可以直接更改function的程式碼，好用好用！
 注意at參數所代表的位置！！(讓我滿意外的)</p>
 
+<h2>自動debug</h2>
+
+<p>輸入</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>options<span class="p">(</span>error <span class="o">=</span> browser<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以在發生錯誤時候進入browser</p>
+
+<p>更強大的debug設定是</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>options<span class="p">(</span>error <span class="o">=</span> recover<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在錯誤發生時候會印出stack，並且可以選擇要進入哪層stack來<code>browser</code></p>
+
 <h1>Reference</h1>
 
-<p><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a></p>
+<p><a href="http://www.math.ncu.edu.tw/~chenwc/R_note/reference/debug/Rdebug.pdf">Rdebug</a>
+<a href="http://rstudio.github.com/shiny/tutorial/#run-and-debug">Shiny Tutorial</a></p>
 </div>
   
   
