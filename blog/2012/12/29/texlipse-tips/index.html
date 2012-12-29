@@ -5,11 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: murmur - Wush筆記</title>
+  <title>texlipse tips with R Sweave - Wush筆記</title>
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Category: murmur">
+  <meta name="description" content="Build Dependency Create an external program to build R Sweave
+touch the main tex or texlipse won&#8217;t update the modified content. 1
+touch &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://wush978.github.comblog/categories/murmur">
+  <link rel="canonical" href="http://wush978.github.com/blog/2012/12/29/texlipse-tips">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -107,36 +109,115 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Murmur</h1>
+    
+      <h1 class="entry-title">Texlipse Tips With R Sweave</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-29T09:29:00+08:00" pubdate data-updated="true">Dec 29<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><h2>Build Dependency</h2>
 
-  
-  <h2>2012</h2>
-
-<article>
-  
-<h1><a href="/blog/2012/08/24/pros-and-cons-of-virtualized-system/">我喜歡使用虛擬化系統</a></h1>
-<time datetime="2012-08-24T11:01:00+08:00" pubdate><span class='month'>Aug</span> <span class='day'>24</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/murmur/'>murmur</a></span>
-</footer>
+<ul>
+<li>Create an external program to build R Sweave</li>
+<li>touch the main tex or texlipse won&#8217;t update the modified content.</li>
+</ul>
 
 
-</article>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>touch document.tex
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>IEEE submission</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>dvipdf -dPDFSETTINGS<span class="o">=</span>/prepress -dSubsetFonts<span class="o">=</span><span class="nb">true</span> -dEmbedAllFonts<span class="o">=</span><span class="nb">true</span> -dMaxSubsetPct<span class="o">=</span>100 -dCompatibilityLevel<span class="o">=</span>1.4
+</span></code></pre></td></tr></table></div></figure>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Wush978</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-29T09:29:00+08:00" pubdate data-updated="true">Dec 29<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/latex/'>latex</a>, <a class='category' href='/blog/categories/texlipse/'>texlipse</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://wush978.github.com/blog/2012/12/29/texlipse-tips/" data-via="" data-counturl="http://wush978.github.com/blog/2012/12/29/texlipse-tips/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/07/rtwmap/" title="Previous Post: Rtwmap">&laquo; Rtwmap</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -192,7 +273,10 @@
       var disqus_shortname = 'wush978';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://wush978.github.com/blog/2012/12/29/texlipse-tips/';
+        var disqus_url = 'http://wush978.github.com/blog/2012/12/29/texlipse-tips/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
