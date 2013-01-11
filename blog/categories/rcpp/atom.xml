@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rcpp | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/rcpp/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2013-01-03T12:46:49+08:00</updated>
+  <updated>2013-01-11T15:46:46+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,105 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[xts and Rcpp]]></title>
+    <link href="http://wush978.github.com/blog/2013/01/11/xts-and-rcpp/"/>
+    <updated>2013-01-11T14:54:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2013/01/11/xts-and-rcpp</id>
+    <content type="html"><![CDATA[<p>Here is my guideline to integrate xts with Rcpp in a R package.</p>
+
+<p>Because the <code>xts_API</code> is written for c language, so we need to hack
+somethings to make it work with c++.</p>
+
+<h1>Modify <code>DESCRIPTION</code></h1>
+
+<p><code>sh
+Depends: xts, Rcpp
+linkingTo: xts, Rcpp
+</code></p>
+
+<h1>Create files in <code>src</code> directory</h1>
+
+<p>```c xts_api.c</p>
+
+<h1>include &lt;xts.h></h1>
+
+<h1>include &lt;xts_stubs.c></h1>
+
+<p>```</p>
+
+<p>```cpp xts_api.h
+extern "C" {</p>
+
+<h1>define class xts_class</h1>
+
+<h1>include &lt;xts.h></h1>
+
+<h1>undef class</h1>
+
+<p>}</p>
+
+<p>inline SEXP install(const char* x) {
+  return Rf_install(x);
+}</p>
+
+<p>inline SEXP getAttrib(SEXP a, SEXP b) {
+  return Rf_getAttrib(a, b);
+}</p>
+
+<p>inline SEXP setAttrib(SEXP a, SEXP b, SEXP c) {
+  return Rf_setAttrib(a, b, c);
+}
+```</p>
+
+<p>Without the macro, there will be  compile time error:
+<code>
+error: expected identifier before ‘)’ token
+</code>
+because <code>xts.h</code> use the keyword <code>class</code>.</p>
+
+<p>Without the inline functions, there will be some compile time errors:
+<code>
+error: ‘install’ was not declared in this scope
+error: ‘getAttrib’ was not declared in this scope
+</code></p>
+
+<p>Now, almost all API could be invoked in c++:</p>
+
+<p>```cpp rcpp_test.cpp</p>
+
+<h1>include &lt;Rcpp.h></h1>
+
+<h1>include "xts_api.h"</h1>
+
+<p>using namespace Rcpp;</p>
+
+<p>RcppExport SEXP get_xts_index(SEXP x) {
+  BEGIN_RCPP</p>
+
+<p>  return GET_xtsIndex(x);</p>
+
+<p>  END_RCPP
+}
+```</p>
+
+<p>except <code>SET_xtsIndexClass(x, value)</code>:</p>
+
+<p><code>sh compile time error
+error: ‘xts_IndexvalueSymbol’ was not declared in this scope
+</code></p>
+
+<p>I guess that we should replace <code>xts_IndexvalueSymbol</code> with <code>xts_IndexClassSymbol</code></p>
+
+<h2>Reference</h2>
+
+<ul>
+<li><code>file.show(system.file('api_example/README', package="xts"))</code></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RcppArmadillo]]></title>
