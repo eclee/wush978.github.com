@@ -91,11 +91,17 @@
         <lastmod>2013-01-11T15:46:41+08:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/
+        </loc>
+        <lastmod>2013-01-29T15:52:19+08:00</lastmod>
+    </url>
+    <url>
         <loc>http://wush978.github.com/blog/archives/</loc>
-        <lastmod>2013-01-11T15:46:41+08:00</lastmod>
+        <lastmod>2013-01-29T15:52:19+08:00</lastmod>
     </url>
     <url>
         <loc>http://wush978.github.com/</loc>
-        <lastmod>2013-01-11T15:46:41+08:00</lastmod>
+        <lastmod>2013-01-29T15:52:19+08:00</lastmod>
     </url>
 </urlset>

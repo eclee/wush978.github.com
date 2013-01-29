@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Eclipse CDT to develop Rcpp Package - Wush筆記</title>
+  <meta name="author" content="Wush978">
+
+  
+  <meta name="description" content="Rstudio is great, but it lacks some useful features for C/C++ provided
+by modern IDE such as tracing. Eclipse CDT is a good choice, but it is &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Wush筆記" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-29552301-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Wush筆記</a></h1>
+  
+    <h2>紀錄學習過程的點點滴滴</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:wush978.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Eclipse CDT to Develop Rcpp Package</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-29T15:16:00+08:00" pubdate data-updated="true">Jan 29<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Rstudio is great, but it lacks some useful features for C/C++ provided
+by modern IDE such as tracing. Eclipse CDT is a good choice, but it is
+complicated to setup the project correctly.</p>
+
+<p>I just wrote a cmake script to generate Eclipse CDT project for
+developing Rcpp package.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>CMake >= 2.8.7</li>
+<li>Eclipse >= 3.7</li>
+<li>Eclipse CDT >= 1.4.2</li>
+<li>R >= 2.15</li>
+<li>Rcpp >= 0.10</li>
+</ul>
+
+
+<h1>Configuration</h1>
+
+<ul>
+<li><p>Download FindLibR.cmake from <a href="https://github.com/rstudio/rstudio/blob/master/cmake/modules/FindLibR.cmake">github</a>
+provided by Rstudio</p></li>
+<li><p>Generate Rcpp package, for example</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>Rcpp<span class="p">)</span>
+</span><span class='line'>Rcpp.package.skeleton<span class="p">(</span><span class="s">&quot;RcppPackage&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Put the following file, named <em>CMakeLists.txt</em> in the generated folder
+such as <code>RcppPackage</code> in the previous example</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>CMakeLists.txt</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='cmake'><span class='line'><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">2.8</span><span class="p">)</span>
+</span><span class='line'><span class="nb">project</span><span class="p">(</span><span class="s">RcppPackage</span><span class="p">)</span>
+</span><span class='line'><span class="nb">find_package</span><span class="p">(</span><span class="s">LibR</span><span class="p">)</span>
+</span><span class='line'><span class="nb">if</span><span class="p">(</span><span class="o">${</span><span class="nv">LIBR_FOUND</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">else</span><span class="p">()</span>
+</span><span class='line'>  <span class="nb">message</span><span class="p">(</span><span class="s">FATAL_ERROR</span> <span class="s2">&quot;No R...&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="nb">endif</span><span class="p">()</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">execute_process</span><span class="p">(</span>
+</span><span class='line'>    <span class="s">COMMAND</span> <span class="o">${</span><span class="nv">LIBR_EXECUTABLE</span><span class="o">}</span> <span class="s2">&quot;--slave&quot;</span> <span class="s2">&quot;-e&quot;</span> <span class="s2">&quot;stopifnot(require(&#39;Rcpp&#39;));cat(Rcpp:::Rcpp.system.file(&#39;include&#39;))&quot;</span>
+</span><span class='line'>    <span class="s">OUTPUT_VARIABLE</span> <span class="s">LIBRCPP_INCLUDE_DIRS</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'><span class="nb">include_directories</span><span class="p">(</span><span class="s">BEFORE</span> <span class="o">${</span><span class="nv">LIBR_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">LIBR_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">include_directories</span><span class="p">(</span><span class="s">BEFORE</span> <span class="o">${</span><span class="nv">LIBRCPP_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">LIBRCPP_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">add_custom_target</span><span class="p">(</span><span class="s">RcppPackage</span> <span class="s">ALL</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="s">find</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span> <span class="s">-name</span> <span class="s2">&quot;*.o&quot;</span> <span class="s">-exec</span> <span class="s">rm</span> <span class="s2">&quot;{}&quot;</span> <span class="s2">&quot;\;&quot;</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="s">find</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span> <span class="s">-name</span> <span class="s2">&quot;*.so&quot;</span> <span class="s">-exec</span> <span class="s">rm</span> <span class="s2">&quot;{}&quot;</span> <span class="s2">&quot;\;&quot;</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="o">${</span><span class="nv">LIBR_EXECUTABLE</span><span class="o">}</span> <span class="s2">&quot;--slave&quot;</span> <span class="s2">&quot;-e&quot;</span> <span class="s2">&quot;\&quot;</span><span class="s">stopifnot(require(roxygen2</span><span class="p">)</span><span class="err">);</span><span class="nb">roxygenize</span><span class="p">(</span><span class="s">&#39;</span><span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span><span class="s">&#39;,roclets=c(&#39;rd&#39;,&#39;collate&#39;,&#39;namespace&#39;</span><span class="p">)</span><span class="err">)\&quot;&quot;</span>
+</span><span class='line'>  <span class="err">COMMAND</span> <span class="err">${LIBR_EXECUTABLE}</span> <span class="err">CMD</span> <span class="err">INSTALL</span> <span class="err">&quot;${CMAKE_SOURCE_DIR}&quot;)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Customize CMakeLists.txt such <code>roxygenize</code> and <code>R CMD INSTALL</code></p></li>
+<li><p>Generate project with cmake</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>mkdir build <span class="c"># don&#39;t create subdirectory of RcppPackage</span>
+</span><span class='line'><span class="nb">cd </span>build
+</span><span class='line'>cmake -G <span class="s2">&quot;Eclipse CDT4 - Unix Makefiles&quot;</span> &lt;path to RcppPackage&gt; -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT<span class="o">=</span>TRUE
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Open eclipse and import project from <code>build</code>(See <a href="http://www.vtk.org/Wiki/Eclipse_CDT4_Generator">cmake-eclipse-cdt</a> for example).
+After indexing, enjoy several convenient features provided by Eclipse CDT
+such as tracing and autocomplete.</p></li>
+<li><p>You can build the project which will be converted to <code>R CMD INSTALL</code> or
+anything in the <em>CMakeLists.txt</em>.</p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Wush978</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-29T15:16:00+08:00" pubdate data-updated="true">Jan 29<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cmake/'>Cmake</a>, <a class='category' href='/blog/categories/eclipse/'>Eclipse</a>, <a class='category' href='/blog/categories/r/'>R</a>, <a class='category' href='/blog/categories/rcpp/'>Rcpp</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/" data-via="" data-counturl="http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/01/11/xts-and-rcpp/" title="Previous Post: xts and Rcpp">&laquo; xts and Rcpp</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/">Using Eclipse CDT to develop Rcpp Package</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/11/xts-and-rcpp/">xts and Rcpp</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/07/rtwmap/">Rtwmap</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/03/unicode-escape-in-r/">unicode escape in R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/">R package installation tips on Ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Wush978 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'wush978';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/';
+        var disqus_url = 'http://wush978.github.com/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

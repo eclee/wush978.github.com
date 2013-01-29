@@ -9,8 +9,8 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Here is my guideline to integrate xts with Rcpp in a R package. Because the xts_API is written for c language, so we need to hack
-somethings to make &hellip;">
+  <meta name="description" content="Rstudio is great, but it lacks some useful features for C/C++ provided
+by modern IDE such as tracing. Eclipse CDT is a good choice, but it is &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -109,6 +109,151 @@ somethings to make &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/">Using Eclipse CDT to Develop Rcpp Package</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-29T15:16:00+08:00" pubdate data-updated="true">Jan 29<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Rstudio is great, but it lacks some useful features for C/C++ provided
+by modern IDE such as tracing. Eclipse CDT is a good choice, but it is
+complicated to setup the project correctly.</p>
+
+<p>I just wrote a cmake script to generate Eclipse CDT project for
+developing Rcpp package.</p>
+
+<h1>Environment</h1>
+
+<ul>
+<li>CMake >= 2.8.7</li>
+<li>Eclipse >= 3.7</li>
+<li>Eclipse CDT >= 1.4.2</li>
+<li>R >= 2.15</li>
+<li>Rcpp >= 0.10</li>
+</ul>
+
+
+<h1>Configuration</h1>
+
+<ul>
+<li><p>Download FindLibR.cmake from <a href="https://github.com/rstudio/rstudio/blob/master/cmake/modules/FindLibR.cmake">github</a>
+provided by Rstudio</p></li>
+<li><p>Generate Rcpp package, for example</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>Rcpp<span class="p">)</span>
+</span><span class='line'>Rcpp.package.skeleton<span class="p">(</span><span class="s">&quot;RcppPackage&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Put the following file, named <em>CMakeLists.txt</em> in the generated folder
+such as <code>RcppPackage</code> in the previous example</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>CMakeLists.txt</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='cmake'><span class='line'><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">2.8</span><span class="p">)</span>
+</span><span class='line'><span class="nb">project</span><span class="p">(</span><span class="s">RcppPackage</span><span class="p">)</span>
+</span><span class='line'><span class="nb">find_package</span><span class="p">(</span><span class="s">LibR</span><span class="p">)</span>
+</span><span class='line'><span class="nb">if</span><span class="p">(</span><span class="o">${</span><span class="nv">LIBR_FOUND</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">else</span><span class="p">()</span>
+</span><span class='line'>  <span class="nb">message</span><span class="p">(</span><span class="s">FATAL_ERROR</span> <span class="s2">&quot;No R...&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="nb">endif</span><span class="p">()</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">execute_process</span><span class="p">(</span>
+</span><span class='line'>    <span class="s">COMMAND</span> <span class="o">${</span><span class="nv">LIBR_EXECUTABLE</span><span class="o">}</span> <span class="s2">&quot;--slave&quot;</span> <span class="s2">&quot;-e&quot;</span> <span class="s2">&quot;stopifnot(require(&#39;Rcpp&#39;));cat(Rcpp:::Rcpp.system.file(&#39;include&#39;))&quot;</span>
+</span><span class='line'>    <span class="s">OUTPUT_VARIABLE</span> <span class="s">LIBRCPP_INCLUDE_DIRS</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'><span class="nb">include_directories</span><span class="p">(</span><span class="s">BEFORE</span> <span class="o">${</span><span class="nv">LIBR_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">LIBR_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">include_directories</span><span class="p">(</span><span class="s">BEFORE</span> <span class="o">${</span><span class="nv">LIBRCPP_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="o">${</span><span class="nv">LIBRCPP_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</span><span class='line'><span class="nb">add_custom_target</span><span class="p">(</span><span class="s">RcppPackage</span> <span class="s">ALL</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="s">find</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span> <span class="s">-name</span> <span class="s2">&quot;*.o&quot;</span> <span class="s">-exec</span> <span class="s">rm</span> <span class="s2">&quot;{}&quot;</span> <span class="s2">&quot;\;&quot;</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="s">find</span> <span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span> <span class="s">-name</span> <span class="s2">&quot;*.so&quot;</span> <span class="s">-exec</span> <span class="s">rm</span> <span class="s2">&quot;{}&quot;</span> <span class="s2">&quot;\;&quot;</span>
+</span><span class='line'>  <span class="s">COMMAND</span> <span class="o">${</span><span class="nv">LIBR_EXECUTABLE</span><span class="o">}</span> <span class="s2">&quot;--slave&quot;</span> <span class="s2">&quot;-e&quot;</span> <span class="s2">&quot;\&quot;</span><span class="s">stopifnot(require(roxygen2</span><span class="p">)</span><span class="err">);</span><span class="nb">roxygenize</span><span class="p">(</span><span class="s">&#39;</span><span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span><span class="s">&#39;,roclets=c(&#39;rd&#39;,&#39;collate&#39;,&#39;namespace&#39;</span><span class="p">)</span><span class="err">)\&quot;&quot;</span>
+</span><span class='line'>  <span class="err">COMMAND</span> <span class="err">${LIBR_EXECUTABLE}</span> <span class="err">CMD</span> <span class="err">INSTALL</span> <span class="err">&quot;${CMAKE_SOURCE_DIR}&quot;)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Customize CMakeLists.txt such <code>roxygenize</code> and <code>R CMD INSTALL</code></p></li>
+<li><p>Generate project with cmake</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>mkdir build <span class="c"># don&#39;t create subdirectory of RcppPackage</span>
+</span><span class='line'><span class="nb">cd </span>build
+</span><span class='line'>cmake -G <span class="s2">&quot;Eclipse CDT4 - Unix Makefiles&quot;</span> &lt;path to RcppPackage&gt; -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT<span class="o">=</span>TRUE
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Open eclipse and import project from <code>build</code>(See <a href="http://www.vtk.org/Wiki/Eclipse_CDT4_Generator">cmake-eclipse-cdt</a> for example).
+After indexing, enjoy several convenient features provided by Eclipse CDT
+such as tracing and autocomplete.</p></li>
+<li><p>You can build the project which will be converted to <code>R CMD INSTALL</code> or
+anything in the <em>CMakeLists.txt</em>.</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1950,66 +2095,6 @@ Note that <em>200</em> is the <em>uid</em> of the prototype.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/08/14/r-closure/">R Closure</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-08-14T22:27:00+08:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/08/14/r-closure/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>R 中<em>function</em>也可以是一種物件型態，或稱做叫作<em>closure</em>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>typeof<span class="p">(</span>rnorm<span class="p">)</span>
-</span><span class='line'><span class="go">[1] &quot;closure&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>要比較兩個function物件，則可透過<code>body</code>這個函數：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='rconsole'><span class='line'><span class="gp">&gt; </span>body<span class="p">(</span>rnorm<span class="p">)</span> <span class="o">==</span> body<span class="p">(</span>rexp<span class="p">)</span>
-</span><span class='line'><span class="go">[1] FALSE</span>
-</span><span class='line'><span class="gp">&gt; </span>body<span class="p">(</span>rnorm<span class="p">)</span> <span class="o">==</span> body<span class="p">(</span>temp<span class="p">)</span>
-</span><span class='line'><span class="go">[1] TRUE</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2025,6 +2110,10 @@ Note that <em>200</em> is the <em>uid</em> of the prototype.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/01/29/using-eclipse-cdt-to-develop-rcpp-package/">Using Eclipse CDT to develop Rcpp Package</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/01/11/xts-and-rcpp/">xts and Rcpp</a>
       </li>
     
@@ -2038,10 +2127,6 @@ Note that <em>200</em> is the <em>uid</em> of the prototype.</p>
     
       <li class="post">
         <a href="/blog/2012/09/24/r-package-installation-tips-on-ubuntu/">R package installation tips on Ubuntu</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/08/30/initialize-postgresql/">Initialize PostgreSQL in Ubuntu 12.04</a>
       </li>
     
   </ul>
