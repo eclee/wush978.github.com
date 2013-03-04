@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Wush筆記]]></title>
   <link href="http://wush978.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2013-01-29T15:52:20+08:00</updated>
+  <updated>2013-03-04T11:39:11+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,83 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Slidy and Scianimator]]></title>
+    <link href="http://wush978.github.com/blog/2013/03/04/slidy-and-scianimator/"/>
+    <updated>2013-03-04T11:22:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2013/03/04/slidy-and-scianimator</id>
+    <content type="html"><![CDATA[<p>In knitr, there is a hook for creating animation with javascript:</p>
+
+<p><code>hook_scianimator</code></p>
+
+<p>However, if you directly use it with <code>pandoc</code> and <code>slidy</code>, the animation
+will not be correctly rendered. The reason is that the <code>.html</code> created by <code>pandoc</code>
+will not include the source <strong>scianimator</strong> required.</p>
+
+<p>Yesterday, I successfully intergrate <strong>scianimator</strong> into <code>slidy</code>.</p>
+
+<h2>Environment</h2>
+
+<ul>
+<li>Ubuntu 12.04 and ubuntu 12.10</li>
+<li><code>pandoc</code> 1.10.0.4</li>
+<li><code>R</code> 2.15.2</li>
+<li><code>knitr</code> 1.0.5</li>
+</ul>
+
+
+<h2>Hacks</h2>
+
+<ul>
+<li>Download the zip file from <a href="http://brentertz.github.com/scianimator/">Scianimator</a></li>
+<li>Copy the subdirectory <code>assets</code> under your project.</li>
+<li>Copy the original template used by <code>pandoc</code>, <code>/&lt;path to pandoc&gt;/data/templates/default.slidy</code>, to
+<code>slidy/slidy.scianimator</code></li>
+<li>add the following line:</li>
+</ul>
+
+
+<p>from:</p>
+
+<p>```html origin
+  ...
+  &lt;script src="$slidy-url$/scripts/slidy.js.gz"</p>
+
+<pre><code>charset="utf-8" type="text/javascript"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>  ...
+```</p>
+
+<p>to:</p>
+
+<p>```html origin
+  ...
+  &lt;script src="$slidy-url$/scripts/slidy.js.gz"</p>
+
+<pre><code>charset="utf-8" type="text/javascript"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>  <script src="assets/js/jquery-1.4.4.min.js"></script>
+  <script src="assets/js/jquery.scianimator.pack.js"></script>
+  <script src="assets/js/jquery.scianimator.js"></script>
+  <script src="assets/js/index.js"></script>
+  ...
+```</p>
+
+<ul>
+<li>Use the following pandoc arguments:</li>
+</ul>
+
+
+<p><code>sh
+pandoc -s -S -i -t slidy --template=slidy/slidy.scianimator --mathjax src.md -o target.html
+</code></p>
+
+<p>That's it!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Eclipse CDT to develop Rcpp Package]]></title>
@@ -347,29 +424,6 @@ toJSON("測試", "R")
 
 
 <p>但是原理知道了，所以之後我有空可能刻個C++的解決方案。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[R package installation tips on Ubuntu]]></title>
-    <link href="http://wush978.github.com/blog/2012/09/24/r-package-installation-tips-on-ubuntu/"/>
-    <updated>2012-09-24T13:18:00+08:00</updated>
-    <id>http://wush978.github.com/blog/2012/09/24/r-package-installation-tips-on-ubuntu</id>
-    <content type="html"><![CDATA[<h1>rgl</h1>
-
-<p><code>sh
-sudo apt-get install r-cran-rgl
-</code></p>
-
-<h1>RBGL, R interface to the Boost Graph Library</h1>
-
-<p>``` r</p>
-
-<h1>! /usr/bin/R</h1>
-
-<p>source("http://bioconductor.org/biocLite.R")
-biocLite("RBGL")
-```</p>
 ]]></content>
   </entry>
   
