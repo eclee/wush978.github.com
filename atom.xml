@@ -4,7 +4,7 @@
   <title><![CDATA[Wush筆記]]></title>
   <link href="http://wush978.github.com/atom.xml" rel="self"/>
   <link href="http://wush978.github.com/"/>
-  <updated>2013-03-04T11:39:11+08:00</updated>
+  <updated>2013-04-04T23:42:47+08:00</updated>
   <id>http://wush978.github.com/</id>
   <author>
     <name><![CDATA[Wush978]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[R 錯誤處理]]></title>
+    <link href="http://wush978.github.com/blog/2013/04/04/r-error-handling/"/>
+    <updated>2013-04-04T11:00:00+08:00</updated>
+    <id>http://wush978.github.com/blog/2013/04/04/r-error-handling</id>
+    <content type="html"><![CDATA[<p>R 的官方文件在<a href="http://cran.r-project.org/doc/manuals/R-lang.html#Exception-handling">Exception handling</a>有介紹R的例外處理機制。</p>
+
+<p>這裡我簡單介紹如何在R寫出類似java、c++或python等主流語言所使用的try-catch機制。</p>
+
+<p>另外這裡講的都是以R2.15為主。</p>
+
+<h1>錯誤相關的函數</h1>
+
+<ul>
+<li><code>warning(...)</code>: 拋出一個警告</li>
+<li><code>stop(...)</code>: 拋出一個例外</li>
+<li><code>surpressWarnings(expr)</code>: 忽略<code>expr</code>中發生的警告</li>
+<li><code>try(expr)</code>: 嘗試執行</li>
+<li><code>tryCatch</code>: 最主流語言例外處理的方法</li>
+<li><code>conditionMessage</code> : 顯示錯誤訊息</li>
+</ul>
+
+
+<h1>R 和其他主流語言的不同</h1>
+
+<p>R 語言處理例外的方式，是透過函數，而非像其他主流語言使用try &#8230; catch &#8230; 等語法。這是因為R 語言幾乎所有功能都是用函數來實作的。請參考<a href="https://github.com/hadley/devtools/wiki/Functions#every-operation-is-a-function-call">Every operation is a function call</a>。</p>
+
+<h1>一個<code>try</code>的範例</h1>
+
+<p>我自己最早是先發現<code>try</code>函數。<code>try</code>的用法近似於回傳expr的結果<em>或</em>執行時發生的錯誤。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>result <span class="o">&lt;-</span> try<span class="p">(</span><span class="m">...</span><span class="p">,</span> silent<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'><span class="kr">if</span> <span class="p">(</span>class<span class="p">(</span>result<span class="p">)</span> <span class="o">==</span> <span class="s">&quot;try-error&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="m">...</span> <span class="c1"># 錯誤處理</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>由於R是我第一個語言，所以我也就接受他了。直到我後來發現主流語言的try &#8211; catch機制後，才覺得奇怪。</p>
+
+<h1>一個<code>tryCatch</code>的範例</h1>
+
+<p>後來我發現<code>tryCatch</code>函式提供了比較類似try &#8211; catch機制的錯誤處理方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>tryCatch<span class="p">({</span>
+</span><span class='line'>  result <span class="o">&lt;-</span> expr
+</span><span class='line'><span class="p">},</span> warning <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>w<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="m">...</span> <span class="c1"># 警告處理</span>
+</span><span class='line'><span class="p">},</span> error <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="m">...</span> <span class="c1"># 錯誤處理</span>
+</span><span class='line'><span class="p">},</span> finally <span class="p">{</span>
+</span><span class='line'>  <span class="m">...</span> <span class="c1"># 清理</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這種語法和其他主流語言的機制比起來接近多了。</p>
+
+<h1><code>conditionMessage</code></h1>
+
+<p>有時候當錯誤發生時，我無法處理，需要直接回傳錯誤訊息給使用者時，或是log起來時，我們可以在<code>tryCatch</code>中使用<code>conditionMessage</code>來擷取錯誤訊息。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>tryCatch<span class="p">({</span>
+</span><span class='line'>  stop<span class="p">(</span><span class="s">&quot;demo error&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">},</span> error <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  conditionMessage<span class="p">(</span>e<span class="p">)</span> <span class="c1"># 這就會是&quot;demo error&quot;</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>錯誤處理的相關issue</h1>
+
+<p>就我的經驗來說，寫出一個穩健的程式碼是非常不容易的。在軟體工程中有許多文章介紹如何寫出這類程式碼。</p>
+
+<p>大部份R 寫出來的script都是只用一次的，所以程式穩定不穩定就不是重點，也因此大家都很少去使用R 的例外處理機制。</p>
+
+<p>某些R 使用者，會需要寫出自動化的script。而這時候為了要讓迴圈不中斷，使用者才開始使用例外處理。</p>
+
+<p>但是當寫到套件時，例外處理就很重要了。這時候，函數的使用者將不再是開發者自己，而還包括其他的使用者，甚至是其他的開發者。此時例外處理就變成一門哲學了。這部份我也只略懂皮毛，下面只列出少許我知道的issue:</p>
+
+<ul>
+<li>釋放資源: 由於錯誤發生時，函數會在不正常的地方退出，所以此時需要釋放一些函數中獲得的資源(如資料庫連線需要關閉)。這部份在C++可以用<a href="http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization">RAII</a>等技術來保證資源不會被忘記釋放。然而在R中，我還不知道有什麼類似的安全機制。</li>
+<li>exception safety guarantees: 當使用者要基於某些函數建立複雜的程式時，通常希望這些函式是不會出錯的。<a href="http://en.wikipedia.org/wiki/Exception_safety">Exception safety</a>就是在探討相關的issue。畢竟使用的函數有例外狀況時，原本的函數也跟著會有例外狀況。就像是蓋在危樓上的樓層，一定也很危險一樣。目前我也尚未看過R在這部份的功能。</li>
+<li>錯誤訊息: 當錯誤發生時，提供的錯誤訊息是否能幫助使用者找到發生錯誤的理由。R在這部份也很不足，這造成要除錯R的程式時，沒有相當的經驗，是無法理解錯誤訊息的。</li>
+</ul>
+
+
+<h1>參考資料</h1>
+
+<ul>
+<li><a href="http://cran.r-project.org/doc/manuals/R-lang.html#Exception-handling">Exception handling</a></li>
+<li><a href="http://mazamascience.com/WorkingWithData/?p=912">Using R — Basic error Handing with tryCatch()</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Slidy and Scianimator]]></title>
@@ -3097,166 +3212,6 @@ NULL
 <li>http://pulse00.github.com/p2/</li>
 </ul>
 </li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[eclipse-svn-symfony]]></title>
-    <link href="http://wush978.github.com/blog/2012/03/09/eclipse-svn-symfony/"/>
-    <updated>2012-03-09T18:36:00+08:00</updated>
-    <id>http://wush978.github.com/blog/2012/03/09/eclipse-svn-symfony</id>
-    <content type="html"><![CDATA[<h1>Subclipse功能簡介</h1>
-
-
-
-
-<h2>建立本機端的repository</h2>
-
-
-<ul>
-<li>於eclipse內打開SVN Repository的perspective</li>
-<li>於SVN Repositories視窗內右邊的倒三角形 -> New repository&#8230;</li>
-<li>選擇要建立repository的位置 -> OK</li>
-</ul>
-
-
-<h2>建立資料夾</h2>
-
-
-<ul>
-<li>右鍵點選repository -> New -> New remote folder</li>
-<li>輸入資料夾名稱</li>
-</ul>
-
-
-<h2>匯入資料</h2>
-
-
-<ul>
-<li>右鍵點選資料夾 -> Import&#8230;</li>
-<li>於Import directory內選擇要被匯入的資料</li>
-<li>於Comment:內輸入註解</li>
-<li>OK</li>
-</ul>
-
-
-<h2>Checkout並建立專案</h2>
-
-
-<ul>
-<li>右鍵點選要被Checkout的資料夾 -> Checkout&#8230;</li>
-<li>選擇Check out as a project configured using the New Project Wizard</li>
-<li>選擇Check out HEAD revision</li>
-<li>選擇Depth:為Fully recursive</li>
-<li>選擇Allow unversioned obstructions</li>
-<li>Finish</li>
-<li>選擇專案的種類為PHP Project</li>
-<li>剩下的步驟同Eclipse建立新專案的步驟</li>
-</ul>
-
-
-<h2 id="commit">送交至Repository(Commit)</h2>
-
-
-<ul>
-<li>右鍵點選已經被修改的檔案 -> Team -> Commit&#8230;</li>
-<li>視窗上方輸入要commit的message</li>
-<li>視窗下方確認要送交的檔案/目錄</li>
-<li>OK</li>
-<li>請不要在送交的message內使用中文</li>
-</ul>
-
-
-<h2>自專案中新增檔案/目錄</h2>
-
-
-<ul>
-<li>右鍵點選要新增至repository的檔案/目錄 -> Team -> Add to Version Control</li>
-<li>如果要取消, 請在右鍵點選要取消的檔案/目錄 -> Team -> Revert&#8230;</li>
-<li><a href="#commit">送交</a>要新增的檔案/目錄</li>
-</ul>
-
-
-<h2>更新Repository</h2>
-
-
-<ul>
-<li>右鍵點選要更新的檔案/目錄 -> Team -> Update to HEAD</li>
-</ul>
-
-
-<h2>刪除Repository內的檔案/目錄</h2>
-
-
-<ul>
-<li>刪除檔案/目錄</li>
-<li>送交</li>
-</ul>
-
-
-<h2>移動Repository內的檔案/目錄</h2>
-
-
-<ul>
-<li>移動檔案/目錄</li>
-<li>送交</li>
-</ul>
-
-
-<h2>解決衝突</h2>
-
-
-<ul>
-<li>送交時發生out of date錯誤</li>
-<li>更新時發現File conflicts</li>
-<li>Edit Conflict</li>
-<li>Mark Resolved&#8230;</li>
-<li>送交</li>
-</ul>
-
-
-<h2>清除暫存的登入帳號密碼</h2>
-
-
-<ul>
-<li>Windows -> Preference -> Team -> SVN 檢查Client Adapter</li>
-<li>依照<a href="http://subclipse.tigris.org/wiki/PluginFAQ#head-d507c29676491f4419997a76735feb6ef0aa8cf8">Subclipse Wiki FAQ</a>的指示清除對應的資料夾</li>
-</ul>
-
-
-<h1>Symfony和svn</h1>
-
-
-<ul>
-<li>於Repository內建立三個資料夾:
-
-<pre><code>myproject/
-  branches/
-  tags/
-  trunk/
-</code></pre></li>
-<li>複製Symfony資料夾至myproject內</li>
-<li>更改Symfony資料夾的名稱為專案名稱(以下仍繼續使用Symfony)</li>
-<li>右鍵點選Symfony/src -> Team -> Add to Version Control</li>
-<li>忽略下列檔案:
-
-<pre><code>vendor
-app/內的bootstrap*
-app/config/內的 parameters.ini
-app/cache/內的 *
-app/logs/內的 *
-web/內的 bundles
-</code></pre></li>
-</ul>
-
-
-<h1>參考資料</h1>
-
-
-<ul>
-<li><a href="http://symfony.com/doc/current/cookbook/workflow/new_project_svn.html">How to Create and store a Symfony2 Project in Subversion</a></li>
 </ul>
 
 ]]></content>

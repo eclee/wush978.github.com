@@ -9,7 +9,7 @@
   <meta name="author" content="Wush978">
 
   
-  <meta name="description" content="Here I&#8217;ll show how to set up my parallel computing environment of R. Introduction As far as I know, the virtualization for linux with OpenVZ &hellip;">
+  <meta name="description" content="Inroduction Recently I am exploring the linear algebra features provided in Armadillo through RcppArmadillo. Here is the note for myself. Note these &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -108,6 +108,165 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/21/rcpparmadillo/">RcppArmadillo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-21T20:08:00+08:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/21/rcpparmadillo/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>Inroduction</h1>
+
+<p>Recently I am exploring the linear algebra features provided in <a href="http://arma.sourceforge.net/">Armadillo</a> through <a href="http://dirk.eddelbuettel.com/code/rcpp.armadillo.html">RcppArmadillo</a>.</p>
+
+<p>Here is the note for myself.</p>
+
+<p>Note these functions are only my understanding of these operators and methods. I didn&#8217;t check the source code of Armadillo and RcppArmadillo.</p>
+
+<h1>Basic Elements and Methods</h1>
+
+<figure class='code'><figcaption><span>mat</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// Initialize a 5 x 5 matrix.</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// fill it with 0</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_rows</span><span class="p">;</span>    <span class="c1">//!&lt; number of rows in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_cols</span><span class="p">;</span>    <span class="c1">//!&lt; number of columns in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">n_elem</span><span class="p">;</span>    <span class="c1">//!&lt; number of elements in the matrix (read-only)</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">vec_state</span><span class="p">;</span> <span class="c1">//!&lt; 0: matrix layout; 1: column vector layout; 2: row vector layout</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">mem</span><span class="p">;</span>         <span class="c1">//!&lt; pointer to memory used by the matrix (memory is read-only)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">min</span><span class="p">();</span>
+</span><span class='line'><span class="n">a</span><span class="p">.</span><span class="n">max</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Feature</h1>
+
+<h2>Matrix Multiplication</h2>
+
+<figure class='code'><figcaption><span>Matrix Multiplication</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="k">operator</span><span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">y</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Transpose</h2>
+
+<figure class='code'><figcaption><span>Transpose</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">trans</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Methods of class arma::mat</span>
+</span><span class='line'><span class="c1">// x.t() = arma::trans(x)</span>
+</span><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">::</span><span class="n">t</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inverse</h2>
+
+<figure class='code'><figcaption><span>Inverse</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span> <span class="n">arma</span><span class="o">::</span><span class="n">pinv</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Sum of Square</h2>
+
+<figure class='code'><figcaption><span>Sum of Square</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kr">inline</span> <span class="kt">double</span> <span class="n">sumOfSquare</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">vec</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">inner_product</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">x</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">x</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Diagonal Vector</h2>
+
+<figure class='code'><figcaption><span>Diagonal Vector</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">arma</span><span class="o">::</span><span class="n">diagvec</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Linear Regression</h2>
+
+<figure class='code'><figcaption><span>Linear Regression</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * @param X    the explanatory variables</span>
+</span><span class='line'><span class="cm"> * @param y    the response variable</span>
+</span><span class='line'><span class="cm"> * @return     the vector of regression coefficients</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">arma</span><span class="o">::</span><span class="n">solve</span><span class="p">(</span><span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">mat</span><span class="o">&amp;</span> <span class="n">X</span><span class="p">,</span> <span class="k">const</span> <span class="n">arma</span><span class="o">::</span><span class="n">vec</span><span class="o">&amp;</span> <span class="n">y</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Residuals</span>
+</span><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">residuals</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">*</span> <span class="n">coef</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Residual Sum of Square</span>
+</span><span class='line'><span class="kt">double</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">sumOfSquare</span><span class="p">(</span><span class="n">residuals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Std of Coef.</span>
+</span><span class='line'><span class="n">arma</span><span class="o">::</span><span class="n">colvec</span> <span class="n">sderr</span> <span class="o">=</span> <span class="n">arma</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s2</span> <span class="o">*</span>
+</span><span class='line'>  <span class="n">arma</span><span class="o">::</span><span class="n">diagvec</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">pinv</span><span class="p">(</span><span class="n">arma</span><span class="o">::</span><span class="n">trans</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">*</span><span class="n">X</span><span class="p">)));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2321,195 +2480,6 @@ NULL
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/09/eclipse-svn-symfony/">Eclipse-svn-symfony</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-09T18:36:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/03/09/eclipse-svn-symfony/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>Subclipse功能簡介</h1>
-
-
-
-
-<h2>建立本機端的repository</h2>
-
-
-<ul>
-<li>於eclipse內打開SVN Repository的perspective</li>
-<li>於SVN Repositories視窗內右邊的倒三角形 -> New repository&#8230;</li>
-<li>選擇要建立repository的位置 -> OK</li>
-</ul>
-
-
-<h2>建立資料夾</h2>
-
-
-<ul>
-<li>右鍵點選repository -> New -> New remote folder</li>
-<li>輸入資料夾名稱</li>
-</ul>
-
-
-<h2>匯入資料</h2>
-
-
-<ul>
-<li>右鍵點選資料夾 -> Import&#8230;</li>
-<li>於Import directory內選擇要被匯入的資料</li>
-<li>於Comment:內輸入註解</li>
-<li>OK</li>
-</ul>
-
-
-<h2>Checkout並建立專案</h2>
-
-
-<ul>
-<li>右鍵點選要被Checkout的資料夾 -> Checkout&#8230;</li>
-<li>選擇Check out as a project configured using the New Project Wizard</li>
-<li>選擇Check out HEAD revision</li>
-<li>選擇Depth:為Fully recursive</li>
-<li>選擇Allow unversioned obstructions</li>
-<li>Finish</li>
-<li>選擇專案的種類為PHP Project</li>
-<li>剩下的步驟同Eclipse建立新專案的步驟</li>
-</ul>
-
-
-<h2 id="commit">送交至Repository(Commit)</h2>
-
-
-<ul>
-<li>右鍵點選已經被修改的檔案 -> Team -> Commit&#8230;</li>
-<li>視窗上方輸入要commit的message</li>
-<li>視窗下方確認要送交的檔案/目錄</li>
-<li>OK</li>
-<li>請不要在送交的message內使用中文</li>
-</ul>
-
-
-<h2>自專案中新增檔案/目錄</h2>
-
-
-<ul>
-<li>右鍵點選要新增至repository的檔案/目錄 -> Team -> Add to Version Control</li>
-<li>如果要取消, 請在右鍵點選要取消的檔案/目錄 -> Team -> Revert&#8230;</li>
-<li><a href="#commit">送交</a>要新增的檔案/目錄</li>
-</ul>
-
-
-<h2>更新Repository</h2>
-
-
-<ul>
-<li>右鍵點選要更新的檔案/目錄 -> Team -> Update to HEAD</li>
-</ul>
-
-
-<h2>刪除Repository內的檔案/目錄</h2>
-
-
-<ul>
-<li>刪除檔案/目錄</li>
-<li>送交</li>
-</ul>
-
-
-<h2>移動Repository內的檔案/目錄</h2>
-
-
-<ul>
-<li>移動檔案/目錄</li>
-<li>送交</li>
-</ul>
-
-
-<h2>解決衝突</h2>
-
-
-<ul>
-<li>送交時發生out of date錯誤</li>
-<li>更新時發現File conflicts</li>
-<li>Edit Conflict</li>
-<li>Mark Resolved&#8230;</li>
-<li>送交</li>
-</ul>
-
-
-<h2>清除暫存的登入帳號密碼</h2>
-
-
-<ul>
-<li>Windows -> Preference -> Team -> SVN 檢查Client Adapter</li>
-<li>依照<a href="http://subclipse.tigris.org/wiki/PluginFAQ#head-d507c29676491f4419997a76735feb6ef0aa8cf8">Subclipse Wiki FAQ</a>的指示清除對應的資料夾</li>
-</ul>
-
-
-<h1>Symfony和svn</h1>
-
-
-<ul>
-<li>於Repository內建立三個資料夾:
-
-<pre><code>myproject/
-  branches/
-  tags/
-  trunk/
-</code></pre></li>
-<li>複製Symfony資料夾至myproject內</li>
-<li>更改Symfony資料夾的名稱為專案名稱(以下仍繼續使用Symfony)</li>
-<li>右鍵點選Symfony/src -> Team -> Add to Version Control</li>
-<li>忽略下列檔案:
-
-<pre><code>vendor
-app/內的bootstrap*
-app/config/內的 parameters.ini
-app/cache/內的 *
-app/logs/內的 *
-web/內的 bundles
-</code></pre></li>
-</ul>
-
-
-<h1>參考資料</h1>
-
-
-<ul>
-<li><a href="http://symfony.com/doc/current/cookbook/workflow/new_project_svn.html">How to Create and store a Symfony2 Project in Subversion</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -2527,6 +2497,10 @@ web/內的 bundles
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/04/04/r-error-handling/">R 錯誤處理</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/04/slidy-and-scianimator/">Slidy and Scianimator</a>
       </li>
     
@@ -2540,10 +2514,6 @@ web/內的 bundles
     
       <li class="post">
         <a href="/blog/2012/12/07/rtwmap/">Rtwmap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/12/03/unicode-escape-in-r/">unicode escape in R</a>
       </li>
     
   </ul>
